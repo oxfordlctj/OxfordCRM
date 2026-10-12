@@ -53,10 +53,14 @@ Found an issue with Remotion? [File an issue here](https://github.com/remotion-d
 
 Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
 
-## Oxford — 8-й филиал
+## Oxford — 8-й филиал (v2)
 
-Вертикальный ролик 1080×1920, 40 секунд. Композиция `OxfordBranch8`.
+Вертикальный ролик 1080×1920, 54 секунды, композиция `OxfordBranch8`.
+3D-сцены на Three.js, английская озвучка (Kokoro, голос bm_george), русские субтитры,
+музыка и звуковые эффекты синтезированы кодом под каждый кадр.
 
-- Филиалы, адреса и доводы — `src/data/branches.ts`
-- Сцены — `src/scenes/`
-- Рендер: `REMOTION_CHROME=/path/to/chrome npx remotion render OxfordBranch8 out/oxford-branch8.mp4`
+- Тайминг всего ролика и озвучки: `src/v2/timeline.json`
+- Филиалы и схема города: `src/v2/cityData.ts`
+- Сцены: `src/v2/`
+- Озвучка: `audio-src/voiceover.py`, музыка и сведение: `audio-src/soundtrack.py`
+- Рендер: `REMOTION_CHROME=/path/to/chrome npx remotion render OxfordBranch8 out/oxford-branch8.mp4 --gl=swangle`
