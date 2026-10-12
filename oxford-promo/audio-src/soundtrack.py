@@ -17,7 +17,7 @@ VO_DIR = sys.argv[2]
 OUT = sys.argv[3]
 DUR = TL["duration"]
 N = int(DUR * SR)
-HIT = TL["hits"]
+HIT = TL.get("hits", {})
 VO = TL["vo"]
 rng = np.random.default_rng(8)
 
@@ -208,115 +208,117 @@ def reverse_cymbal(sec=1.6):
 # ---------------------------------------------------------------- arrangement
 music = Bus()
 fx = Bus()
+MUS = TL["music"]
+DRUMS = MUS["drums"]
+ARPR = MUS["arp"]
+BREAK = MUS["break"]
+LIGHT = MUS.get("lightBeat", [0, 0])
 
 CHORDS = [[50, 53, 57], [46, 50, 53], [53, 57, 60], [48, 52, 55]]  # Dm Bb F C
 ROOTS = [38, 34, 41, 36]
 ARP = [[62, 65, 69, 74], [58, 62, 65, 70], [60, 65, 69, 72], [60, 64, 67, 72]]
 
-BREAK = (HIT["impact"] - 1.6, HIT["impact"])  # drop-out before №8
-
 
 def in_break(t):
+    return BREAK[0] <= t < BREAK[1] and not (LIGHT[0] <= t < LIGHT[1])
+
+
+def silent(t):
     return BREAK[0] <= t < BREAK[1]
 
 
-# pads across the whole film
-bar = 2 * 2 * BEAT  # 2 bars per chord = 4 s
+bar = 2 * 2 * BEAT  # one chord every 4 s
 for i in range(int(DUR / bar) + 1):
     t0 = i * bar
-    bright = 900 if t0 < HIT["toMap"] else 1600 if t0 < HIT["toCity"] else 2400
+    bright = 900 if t0 < ARPR[0] else 1600 if t0 < DRUMS[0] else 2400
     music.add(pad_chord(CHORDS[i % 4], bar + 0.8, bright), t0, 1.0)
 
-# sub bass pulses (8ths) from the city on, off in the break
-bass_on = HIT["toCity"]
-for k in range(int((DUR - bass_on) / (BEAT / 2))):
-    t0 = bass_on + k * BEAT / 2
-    if in_break(t0) or t0 > HIT["outro"] + 0.4:
+for k in range(int((DUR - DRUMS[0]) / (BEAT / 2))):
+    t0 = DRUMS[0] + k * BEAT / 2
+    if silent(t0) or t0 > DRUMS[1] + 0.4:
         continue
     ci = int(t0 // bar) % 4
     tt = t_axis(BEAT / 2)
-    b = np.tanh(np.sin(2 * np.pi * note(ROOTS[ci] - 12 + 12) * tt) * 2) * np.exp(-tt * 6) * 0.35
+    b = np.tanh(np.sin(2 * np.pi * note(ROOTS[ci]) * tt) * 2) * np.exp(-tt * 6) * 0.35
     music.add(lp(b, 400), t0)
 
-# arp: starts on the map, opens up in the city
-arp_on = HIT["toMap"] + 0.3
-for k in range(int((DUR - arp_on) / (BEAT / 4))):
-    t0 = arp_on + k * BEAT / 4
-    if in_break(t0) or t0 > HIT["outro"] + 2:
-        continue
-    ci = int(t0 // bar) % 4
-    n = ARP[ci][k % 4] + (12 if (k // 8) % 2 and t0 > HIT["toCity"] else 0)
-    g = 0.5 if t0 < HIT["toCity"] else 0.8
-    music.add(pluck(n), t0, g, pan=0.35 if k % 2 else -0.35)
-
-# drums
-for k in range(int(DUR / BEAT)):
-    t0 = k * BEAT
+for k in range(int((ARPR[1] - ARPR[0]) / (BEAT / 4))):
+    t0 = ARPR[0] + k * BEAT / 4
     if in_break(t0):
         continue
-    if HIT["toMap"] + 2 <= t0 < HIT["toCity"]:
-        music.add(kick(0.5), t0)
-    elif HIT["toCity"] <= t0 < HIT["outro"]:
+    ci = int(t0 // bar) % 4
+    n = ARP[ci][k % 4] + (12 if (k // 8) % 2 and t0 > DRUMS[0] else 0)
+    g = 0.35 if silent(t0) else 0.5 if t0 < DRUMS[0] else 0.8
+    music.add(pluck(n), t0, g, pan=0.35 if k % 2 else -0.35)
+
+for k in range(int(DUR / BEAT)):
+    t0 = k * BEAT
+    if DRUMS[0] <= t0 < DRUMS[1] and not silent(t0):
         music.add(kick(0.85), t0)
         music.add(hat(), t0 + BEAT / 2, 0.8, pan=0.2)
-        if t0 > HIT["impact"]:
+        if t0 > BREAK[1]:
             music.add(hat(80), t0 + BEAT / 4, 0.5, pan=-0.3)
             music.add(hat(80), t0 + 3 * BEAT / 4, 0.5, pan=0.3)
-        if k % 2 == 1 and t0 > HIT["toCity"] + 4:
+        if k % 2 == 1 and t0 > DRUMS[0] + 4:
             music.add(clap(), t0, 0.7)
-
-# ticking clock in the intro
-for k in range(int(HIT["toMap"] / BEAT)):
-    music.add(hat(120), k * BEAT + 0.3, 0.6, pan=0.4 if k % 2 else -0.4)
+    elif LIGHT[0] <= t0 < LIGHT[1]:
+        music.add(kick(0.45), t0)
+        music.add(hat(120), t0 + BEAT / 2, 0.5)
+    elif ARPR[0] <= t0 < DRUMS[0]:
+        music.add(kick(0.45), t0) if k % 2 == 0 else None
+    elif t0 < ARPR[0]:
+        music.add(hat(120), t0 + 0.4, 0.5, pan=0.4 if k % 2 else -0.4)
 
 # ---------------------------------------------------------------- sound design
-fx.add(braam(3.5, 38), HIT["intro"], 0.9)
-fx.add(whoosh(0.5, 1500, 9000), HIT["intro"] - 0.25, 0.5)
-fx.add(sub_boom(1.6), HIT["students"], 0.7)
-fx.add(whoosh(0.6), HIT["students"] - 0.3, 0.6, pan=-0.3)
-fx.add(sub_boom(1.6), HIT["oneCity"], 0.7)
-fx.add(bell(74, 3), HIT["oneCity"], 0.6)
-fx.add(braam(3.0, 41), HIT["oxford"], 0.8)
-fx.add(noise_riser(1.2), HIT["toMap"] - 1.2, 0.55)
-fx.add(whoosh(1.0, 300, 7000), HIT["toMap"] - 0.3, 0.9)
-fx.add(sub_boom(2.0), HIT["toMap"] + 0.15, 0.6)
-fx.add(braam(3.0, 34), HIT["dushanbe"], 0.7)
-fx.add(bell(81, 3), HIT["dushanbe"] + 0.1, 0.5)
-fx.add(noise_riser(1.6), HIT["toCity"] - 1.6, 0.7)
-fx.add(whoosh(1.0, 200, 8000), HIT["toCity"] - 0.4, 1.0)
-fx.add(sub_boom(2.2), HIT["toCity"], 0.8)
+for e in TL["sfx"]:
+    t0, k = e["t"], e["k"]
+    if k == "braam":
+        fx.add(braam(3.5, 38), t0, 0.9)
+        fx.add(whoosh(0.5, 1500, 9000), t0 - 0.25, 0.5)
+    elif k == "braam_low":
+        fx.add(braam(3.0, 34), t0, 0.7)
+    elif k == "hit":
+        fx.add(sub_boom(1.4), t0, 0.7)
+        fx.add(whoosh(0.5, 800, 7000), t0 - 0.25, 0.5, pan=-0.3)
+    elif k == "rise_hit":
+        fx.add(sub_boom(1.4), t0, 0.6)
+        fx.add(noise_riser(1.6), t0 + 0.2, 0.45)
+    elif k == "whoosh_big":
+        fx.add(noise_riser(1.0), t0 - 1.0, 0.5)
+        fx.add(whoosh(1.0, 300, 8000), t0 - 0.35, 0.9)
+        fx.add(sub_boom(1.8), t0 + 0.1, 0.6)
+    elif k == "heart":
+        for j in range(3):
+            fx.add(sub_boom(0.4, 80, 42), t0 + j * 0.9, 0.7)
+            fx.add(sub_boom(0.3, 70, 40), t0 + j * 0.9 + 0.22, 0.45)
+    elif k == "lock":
+        fx.add(bell(86, 1.5), t0, 0.5)
+        fx.add(sub_boom(1.0), t0, 0.6)
+    elif k == "impact":
+        fx.add(reverse_cymbal(1.2), t0 - 1.2, 0.8)
+        fx.add(braam(4.5, 38), t0, 1.2)
+        fx.add(sub_boom(4.0, 150, 30), t0, 1.0)
+        fx.add(hp(rng.standard_normal(int(SR * 2.5)), 3000) * np.exp(-t_axis(2.5) * 2.0) * 0.4, t0, 0.8)
+        fx.add(bell(86, 3.5), t0 + 0.05, 0.6)
+        fx.add(bell(81, 3.5), t0 + 0.05, 0.5)
+    elif k == "tick_hit":
+        fx.add(whoosh(0.7, 500, 7000), t0 - 0.3, 0.7, pan=0.5)
+        fx.add(sub_boom(0.9, 100, 45), t0, 0.45)
+        fx.add(bell(74, 1.5), t0 + 0.05, 0.3)
+    elif k == "sparkle":
+        for j, n in enumerate([74, 78, 81, 86, 90]):
+            fx.add(bell(n, 3.0), t0 + 1.0 + j * 0.06, 0.32, pan=-0.4 + j * 0.2)
+        fx.add(sub_boom(1.6), t0 + 1.0, 0.6)
+    elif k == "end":
+        fx.add(sub_boom(4.0, 90, 32), t0, 0.6)
 
-# a bell for every branch, climbing the D minor pentatonic
+# bells on every branch name, climbing the D minor pentatonic
 PENTA = [62, 65, 67, 69, 72, 74, 77]
 for i in range(7):
-    t0 = VO[f"n{i + 1}"]
-    fx.add(bell(PENTA[i] + 12, 2.0), t0, 0.55, pan=-0.5 + i / 6)
-    fx.add(whoosh(0.35, 2000, 9000), t0 - 0.12, 0.25)
-
-# suspense + the big reveal
-fx.add(reverse_cymbal(BREAK[1] - BREAK[0]), BREAK[0], 0.9)
-fx.add(noise_riser(BREAK[1] - BREAK[0], 12000), BREAK[0], 0.8)
-for k in range(3):  # heartbeat
-    fx.add(sub_boom(0.4, 70, 40), BREAK[0] + 0.1 + k * 0.45, 0.6)
-fx.add(braam(4.5, 38), HIT["impact"], 1.2)
-fx.add(sub_boom(4.0, 150, 30), HIT["impact"], 1.0)
-fx.add(hp(rng.standard_normal(int(SR * 2.5)), 3000) * np.exp(-t_axis(2.5) * 2.0) * 0.4, HIT["impact"], 0.8)
-fx.add(bell(86, 3.5), HIT["impact"] + 0.05, 0.6)
-fx.add(bell(81, 3.5), HIT["impact"] + 0.05, 0.5)
-
-fx.add(sub_boom(1.2), HIT["whyHere"], 0.7)
-fx.add(whoosh(0.5, 800, 6000), HIT["whyHere"] - 0.2, 0.6)
-for k in ("r1", "r2", "r3"):
-    fx.add(whoosh(0.7, 500, 7000), HIT[k] - 0.3, 0.7, pan=0.5)
-    fx.add(sub_boom(0.9, 100, 45), HIT[k], 0.45)
-    fx.add(bell(74, 1.5), HIT[k] + 0.05, 0.3)
-
-fx.add(noise_riser(1.0), HIT["outro"] - 1.0, 0.5)
-fx.add(whoosh(1.0, 300, 9000), HIT["outro"] - 0.2, 0.9)
-fx.add(braam(5.0, 38), HIT["logo"] + 1.0, 1.0)
-for k, n in enumerate([74, 78, 81, 86]):
-    fx.add(bell(n, 3.0), HIT["soon"] + 0.5 + k * 0.08, 0.35, pan=-0.3 + k * 0.2)
-fx.add(sub_boom(4.0, 90, 32), DUR - 4.2, 0.6)
+    key = f"n{i + 1}"
+    if key in VO:
+        fx.add(bell(PENTA[i] + 12, 2.0), VO[key], 0.55, pan=-0.5 + i / 6)
+        fx.add(whoosh(0.35, 2000, 9000), VO[key] - 0.12, 0.25)
 
 # ---------------------------------------------------------------- voice
 vo_bus = np.zeros(N + SR * 4)
