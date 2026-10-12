@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "promo-video": {
+      "source": "AKCodez/promo-video-skill",
+      "sourceType": "github",
+      "skillPath": "skills/promo-video/SKILL.md",
+      "computedHash": "3324a4634abbf805f781539f01b9a822686a432afc6d1ab5984cb824d0fd9794"
+    },
     "remotion-best-practices": {
       "source": "remotion-dev/skills",
       "sourceType": "github",
