@@ -1,3 +1,5 @@
+import { CastSheet } from "./v8/CastSheet";
+import { OxfordShinobiHD } from "./v8/EpB";
 import React from "react";
 import { Composition, Folder } from "remotion";
 import { CityV3 } from "./v3/City";
@@ -19,6 +21,8 @@ const V = { fps: 30, width: 1080, height: 1920 };
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition id="OxfordShinobiHD" component={OxfordShinobiHD} durationInFrames={1800} {...V} />
+      <Composition id="CastSheet" component={CastSheet} durationInFrames={30} {...V} />
       <Composition id="RenSheet" component={RenSheet} durationInFrames={30} {...V} />
       <Composition id="OxfordShinobiManga" component={OxfordShinobiManga} durationInFrames={60 * 30} {...V} />
       <Composition id="OxfordShinobi" component={OxfordShinobi} durationInFrames={60 * 30} {...V} />
