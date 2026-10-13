@@ -10,6 +10,8 @@ import { DURATION, SCENES } from "./v3/timeline";
 import { WhyV3 } from "./v3/Why";
 import { OxfordStory } from "./v4/Story";
 import { OxfordShinobi } from "./v5/Episode";
+import { OxfordShinobiManga } from "./v6/Pages2";
+import { RenSheet } from "./v7/RenSheet";
 
 const len = (s: number[]) => Math.round((s[1] - s[0]) * 30);
 const V = { fps: 30, width: 1080, height: 1920 };
@@ -17,6 +19,8 @@ const V = { fps: 30, width: 1080, height: 1920 };
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition id="RenSheet" component={RenSheet} durationInFrames={30} {...V} />
+      <Composition id="OxfordShinobiManga" component={OxfordShinobiManga} durationInFrames={60 * 30} {...V} />
       <Composition id="OxfordShinobi" component={OxfordShinobi} durationInFrames={60 * 30} {...V} />
       <Composition id="OxfordStory" component={OxfordStory} durationInFrames={60 * 30} {...V} />
       <Composition id="OxfordBranch8" component={OxfordBranch8} durationInFrames={Math.round(DURATION * 30)} {...V} />
