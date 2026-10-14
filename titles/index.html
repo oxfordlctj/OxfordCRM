@@ -1,0 +1,592 @@
+<title>Oxford CRM Main Titles</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;800;900&family=Familjen+Grotesk:wght@400;600&family=Martian+Mono:wght@300;400&display=swap">
+<style>
+/* Layout: full-bleed WebGL plate under a 2.39:1 letterbox; credits sit on the thirds of the frame the way a feature's main-title sequence does, stage words punch through the middle in difference blend. */
+:root{
+  --ink:#060a12;        /* night inside the colonnade */
+  --navy:#0d1830;       /* Oxford blue, lifted */
+  --bone:#efe8dc;       /* credit white, warm like projected light */
+  --plaster:#d8d0c2;    /* the sculptures */
+  --tungsten:#ffb36b;   /* key light, used only on kickers */
+  --dim:rgba(239,232,220,.52);
+  --f-display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --f-body:"Familjen Grotesk","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"Martian Mono",ui-monospace,Menlo,Consolas,monospace;
+  --bar:64px;
+  color-scheme:dark;
+}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--ink);color:var(--bone)}
+body{font-family:var(--f-body);-webkit-font-smoothing:antialiased}
+.no-gl body{background:radial-gradient(120% 90% at 50% 60%,var(--navy) 0%,var(--ink) 70%)}
+
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;will-change:transform}
+.no-gl #gl{display:none}
+
+.fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+.vignette{background:radial-gradient(130% 100% at 50% 50%,transparent 45%,rgba(3,5,10,.55) 80%,rgba(3,5,10,.9) 100%);z-index:3}
+#grain{z-index:4;mix-blend-mode:overlay;opacity:.16}
+
+/* credit layers */
+.layer{position:fixed;left:0;right:0;top:var(--bar);bottom:var(--bar);display:flex;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:clamp(14px,4.5vh,56px);pointer-events:none;will-change:transform}
+#frame{z-index:5}
+#mega{z-index:2;mix-blend-mode:difference}
+.stage{position:relative;flex:1;min-width:0;margin-inline:clamp(0px,3.5vw,64px)}
+
+.card{position:absolute;inset:0;display:flex;visibility:hidden}
+.pos-center{align-items:center;justify-content:center;text-align:center}
+.pos-bl{align-items:flex-end;justify-content:flex-start}
+.pos-tl{align-items:flex-start;justify-content:flex-start}
+.pos-tr{align-items:flex-start;justify-content:flex-end;text-align:right}
+.pos-br{align-items:flex-end;justify-content:flex-end;text-align:right}
+.block{display:flex;flex-direction:column;gap:clamp(6px,1.1vh,14px);max-width:100%;will-change:transform;transform-origin:50% 60%}
+.pos-center .block{align-items:center}
+.pos-tr .block,.pos-br .block{align-items:flex-end}
+
+.line{display:block;overflow:hidden;perspective:700px;padding:.08em .04em .03em;margin:-.08em -.04em -.03em;white-space:nowrap}
+.ch,.slab{display:inline-block;transform-origin:50% 100%;will-change:transform,opacity}
+
+.kicker{font:600 clamp(10px,1.02vw,15px)/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.34em;color:var(--tungsten)}
+.main{font:900 clamp(50px,9.4vw,178px)/.84 var(--f-display);text-transform:uppercase;letter-spacing:-.005em;color:var(--bone);text-wrap:balance;
+  text-shadow:0 .02em .08em rgba(0,0,0,.35)}
+.sub{font:400 clamp(13px,1.28vw,19px)/1.3 var(--f-body);letter-spacing:.05em;color:var(--dim)}
+
+/* stage words: the camera flies through them */
+.mega .block{position:relative;align-items:center;text-align:center;perspective:900px}
+.mega .word{position:relative;font:900 min(21vw,40vh)/.8 var(--f-display);text-transform:uppercase;color:var(--bone);white-space:nowrap}
+.mega .echo{position:absolute;left:0;top:0;color:transparent;-webkit-text-stroke:1.5px var(--bone);white-space:nowrap;pointer-events:none}
+.mega .stagelbl{font:400 clamp(10px,.95vw,14px)/1 var(--f-mono);letter-spacing:.28em;text-transform:uppercase;color:var(--bone)}
+
+/* main title */
+.title .block{align-items:center;text-align:center;gap:clamp(4px,1vh,12px)}
+.title .oxf{font:900 min(25vw,36vh)/.78 var(--f-display);letter-spacing:.02em;color:var(--bone)}
+.title .crm{font:800 min(11vw,15vh)/.9 var(--f-display);letter-spacing:.42em;margin-right:-.42em;color:transparent;-webkit-text-stroke:1.5px var(--bone)}
+.title .sub{color:var(--bone);opacity:.8}
+
+/* letterbox */
+.bar{position:fixed;left:0;right:0;height:var(--bar);background:#020306;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  font:300 clamp(9px,.78vw,11px)/1 var(--f-mono);letter-spacing:.18em;text-transform:uppercase;color:rgba(239,232,220,.42);
+  font-variant-numeric:tabular-nums}
+.bar.top{top:0;padding-top:env(safe-area-inset-top,0px)}
+.bar.bottom{bottom:0;padding-bottom:env(safe-area-inset-bottom,0px)}
+.bar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.bar .rec{color:var(--tungsten)}
+.bar .rec::before{content:"";display:inline-block;width:.6em;height:.6em;border-radius:50%;background:currentColor;margin-right:.7em;vertical-align:.02em}
+@media (max-width:520px){.bar .opt{display:none}}
+</style>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="layer" id="mega" aria-hidden="true"><div class="stage" id="megaStage"></div></div>
+<main class="layer" id="frame" aria-label="Oxford CRM opening titles"><div class="stage" id="credits"></div></main>
+<div class="fx vignette"></div>
+<canvas id="grain" class="fx" aria-hidden="true"></canvas>
+<div class="bar top"><span>Oxford CRM — Main titles</span><span class="opt">Reel 1 · 2.39 : 1 · 24 fps</span></div>
+<div class="bar bottom"><span class="rec" id="tc">00:00:00:00</span><span id="sc">Sc. 01</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const LOOP = 46.6;
+  const BASE_SPEED = 5.4;
+
+  // ── the sequence ─────────────────────────────────────────────
+  const CARDS = [
+    {t0:0.0,  t1:4.6,  pos:'center', kicker:'Oxford presents', main:'A Pipeline', sub:'in five stages'},
+    {t0:5.0,  t1:9.4,  pos:'bl', kicker:'Starring', main:'Every Lead', sub:'you never let go cold'},
+    {t0:9.8,  t1:14.0, pos:'tr', kicker:'With', main:'Contacts', sub:'Deals · Tasks · Notes · Calls'},
+    {t0:14.4, t1:19.0, type:'mega', main:'Qualify', stage:'Stage 02 / 05'},
+    {t0:19.4, t1:23.6, pos:'br', kicker:'Edited by', main:'Follow-up', sub:'within 48 hours, every time'},
+    {t0:24.0, t1:28.4, pos:'tl', kicker:'Director of photography', main:'The Dashboard', sub:'shot on live data'},
+    {t0:28.8, t1:33.2, type:'mega', main:'Proposal', stage:'Stage 04 / 05'},
+    {t0:33.6, t1:38.0, pos:'bl', kicker:'Original score', main:'Notifications', sub:'muted after 19:00'},
+    {t0:38.4, t1:46.2, type:'title', kicker:'Stage 05 / 05 — Closed won', sub:'Every client. One continuous story.'}
+  ];
+
+  const clamp = (v,a=0,b=1) => Math.min(b, Math.max(a, v));
+  const lerp = (a,b,t) => a + (b-a)*t;
+  const outExpo = t => t >= 1 ? 1 : 1 - Math.pow(2, -10*t);
+  const inCubic = t => t*t*t;
+  const inOutSine = t => -(Math.cos(Math.PI*t) - 1)/2;
+  const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+
+  function split(text, cls) {
+    const line = el('span', 'line ' + (cls||''));
+    const chars = [];
+    for (const c of text) { const s = el('span', 'ch', c === ' ' ? ' ' : c); line.appendChild(s); chars.push(s); }
+    return {line, chars};
+  }
+  function slab(text, cls) {
+    const line = el('span', 'line ' + cls);
+    const s = el('span', 'slab', text);
+    line.appendChild(s);
+    return {line, s};
+  }
+
+  const credits = document.getElementById('credits');
+  const megaStage = document.getElementById('megaStage');
+
+  CARDS.forEach((c, idx) => {
+    c.idx = idx;
+    c.dur = c.t1 - c.t0;
+    const card = el('section', 'card ' + (c.type ? c.type + ' pos-center' : 'pos-' + c.pos));
+    const block = el('div', 'block');
+    card.appendChild(block);
+    c.card = card; c.block = block;
+    if (c.type === 'mega') {
+      const lbl = slab(c.stage, 'stagelbl');
+      const word = el('div', 'word');
+      const sp = split(c.main);
+      word.appendChild(sp.line);
+      c.echoes = [0,1,2].map(() => { const e = el('div', 'echo', c.main.toUpperCase()); word.appendChild(e); return e; });
+      block.append(lbl.line, word);
+      c.parts = {lbl, chars: sp.chars, word};
+      megaStage.appendChild(card);
+    } else if (c.type === 'title') {
+      const k = slab(c.kicker, 'kicker');
+      const oxf = split('OXFORD', 'oxf');
+      const crm = slab('CRM', 'crm');
+      const sub = slab(c.sub, 'sub');
+      block.append(k.line, oxf.line, crm.line, sub.line);
+      c.parts = {k, chars: oxf.chars, oxfLine: oxf.line, crm, sub};
+      credits.appendChild(card);
+    } else {
+      const k = slab(c.kicker, 'kicker');
+      const m = split(c.main, 'main');
+      const s = slab(c.sub, 'sub');
+      block.append(k.line, m.line, s.line);
+      c.parts = {k, chars: m.chars, s};
+      credits.appendChild(card);
+    }
+  });
+
+  // letters fold up from below the cut, hinge on their baseline, then fall back into depth on the way out
+  function animChars(chars, lt, dur, delay, stagger, deep) {
+    const n = chars.length;
+    for (let i = 0; i < n; i++) {
+      const ein = outExpo(clamp((lt - delay - i*stagger) / 1.15));
+      const eout = inCubic(clamp((lt - (dur - 0.9) - i*0.032) / 0.75));
+      const y = (1 - ein) * 108;
+      const rx = (1 - ein) * -88 + eout * 70;
+      const z = eout * -(deep || 220) + (1 - ein) * 60;
+      const s = chars[i].style;
+      s.transform = `translate3d(0,${y.toFixed(2)}%,${z.toFixed(1)}px) rotateX(${rx.toFixed(2)}deg)`;
+      s.opacity = (1 - eout).toFixed(3);
+      s.filter = eout > 0.005 ? `blur(${(eout*9).toFixed(1)}px)` : 'none';
+    }
+  }
+  function animSlab(node, lt, dur, delay) {
+    const ein = outExpo(clamp((lt - delay) / 1.0));
+    const eout = inCubic(clamp((lt - (dur - 0.8) - delay*0.4) / 0.6));
+    const s = node.style;
+    s.transform = `translate3d(0,${((1-ein)*120 - eout*30).toFixed(2)}%,0)`;
+    s.opacity = (1 - eout).toFixed(3);
+  }
+
+  let vel = 0; // camera rush, shared with the type so the letters lean into the move
+
+  function drawCredits(t) {
+    for (const c of CARDS) {
+      const lt = t - c.t0;
+      const on = lt >= 0 && lt <= c.dur;
+      c.card.style.visibility = on ? 'visible' : 'hidden';
+      if (!on) continue;
+      const p = lt / c.dur;
+      const P = c.parts;
+
+      if (c.type === 'mega') {
+        // word grows toward lens, then the camera passes through it
+        const eout = inCubic(clamp((lt - (c.dur - 1.1)) / 1.1));
+        const ein = outExpo(clamp(lt / 1.4));
+        const sc = lerp(0.7, 1, ein) * lerp(1, 1.14, p) * (1 + eout * 2.4);
+        c.block.style.transform = `translate3d(0,0,0) scale(${sc.toFixed(4)}) skewX(${(-vel*4).toFixed(2)}deg)`;
+        c.block.style.opacity = (1 - eout*eout).toFixed(3);
+        c.block.style.filter = eout > 0.01 ? `blur(${(eout*14).toFixed(1)}px)` : 'none';
+        P.word.style.letterSpacing = (lerp(0.12, -0.01, ein) + p*0.03).toFixed(4) + 'em';
+        animChars(P.chars, lt, c.dur + 0.5, 0.0, 0.05, 40);
+        animSlab(P.lbl.s, lt, c.dur, 0.35);
+        c.echoes.forEach((e, j) => {
+          const k = (j + 1);
+          const es = 1 + k * (0.035 + Math.max(0, vel) * 0.05);
+          e.style.letterSpacing = P.word.style.letterSpacing;
+          e.style.transform = `scale(${es.toFixed(4)}) translateY(${(k*1.5).toFixed(1)}%)`;
+          e.style.opacity = (ein * (0.42 / k)).toFixed(3);
+        });
+      } else if (c.type === 'title') {
+        const out = inCubic(clamp((lt - (c.dur - 1.3)) / 1.3));
+        const sc = lerp(1.06, 0.98, inOutSine(clamp(p))) ;
+        c.block.style.transform = `scale(${sc.toFixed(4)}) skewX(${(-vel*2).toFixed(2)}deg)`;
+        c.block.style.opacity = (1 - out).toFixed(3);
+        c.block.style.filter = out > 0.01 ? `blur(${(out*16).toFixed(1)}px)` : 'none';
+        // tracking keeps breathing open so the title never sits still
+        const tr = lerp(0.5, 0.0, outExpo(clamp(lt / 3.2))) + lt * 0.006;
+        P.oxfLine.style.letterSpacing = tr.toFixed(4) + 'em';
+        P.oxfLine.style.marginRight = (-tr).toFixed(4) + 'em';
+        animChars(P.chars, lt, c.dur + 2, 0.15, 0.08);
+        animSlab(P.k.s, lt, c.dur + 2, 0.0);
+        animSlab(P.sub.s, lt, c.dur + 2, 1.5);
+        const draw = outExpo(clamp((lt - 1.0) / 1.6));
+        P.crm.s.style.clipPath = `inset(0 ${((1-draw)*100).toFixed(2)}% 0 0)`;
+        P.crm.s.style.transform = `translate3d(${((1-draw)*-6).toFixed(2)}%,0,0)`;
+      } else {
+        const dir = {center:[0,-1], bl:[1,-0.4], tl:[1,0.4], tr:[-1,0.4], br:[-1,-0.4]}[c.pos];
+        const dx = dir[0] * lt * 7, dy = dir[1] * lt * 5;
+        const sc = 1 + lt * 0.016;
+        c.block.style.transform = `translate3d(${dx.toFixed(2)}px,${dy.toFixed(2)}px,0) scale(${sc.toFixed(4)}) skewX(${(-vel*3).toFixed(2)}deg)`;
+        animSlab(P.k.s, lt, c.dur, 0.0);
+        animChars(P.chars, lt, c.dur, 0.18, 0.042);
+        animSlab(P.s.s, lt, c.dur, 0.7);
+      }
+    }
+  }
+
+  // ── letterbox, grain, timecode ───────────────────────────────
+  const root = document.documentElement;
+  function sizeBars() {
+    const W = innerWidth, H = innerHeight;
+    const bar = Math.max(28, Math.min((H - W / 2.39) / 2, H * 0.12));
+    root.style.setProperty('--bar', bar.toFixed(1) + 'px');
+  }
+  sizeBars();
+
+  const grain = document.getElementById('grain');
+  const gctx = grain.getContext('2d');
+  const GS = 180; grain.width = GS; grain.height = GS;
+  const grainFrames = [];
+  for (let f = 0; f < 6; f++) {
+    const img = gctx.createImageData(GS, GS);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = Math.random() * 255;
+      img.data[i] = img.data[i+1] = img.data[i+2] = v; img.data[i+3] = 255;
+    }
+    grainFrames.push(img);
+  }
+  gctx.putImageData(grainFrames[0], 0, 0);
+
+  const tcEl = document.getElementById('tc'), scEl = document.getElementById('sc');
+  const pad = n => String(n).padStart(2, '0');
+  function timecode(t) {
+    const fr = Math.floor(t * 24);
+    return `${pad(Math.floor(fr/86400))}:${pad(Math.floor(fr/1440)%60)}:${pad(Math.floor(fr/24)%60)}:${pad(fr%24)}`;
+  }
+
+  const glCanvas = document.getElementById('gl');
+  const frameEl = document.getElementById('frame');
+  const megaEl = document.getElementById('mega');
+
+  // ── the set: an Oxford colonnade at night, sculptures in the nave ──
+  function initGL() {
+    if (!window.THREE) return null;
+    let renderer;
+    try { renderer = new THREE.WebGLRenderer({canvas: glCanvas, antialias: true, powerPreference: 'high-performance'}); }
+    catch (e) { return null; }
+    if (!renderer.getContext()) return null;
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const scene = new THREE.Scene();
+    const BG = new THREE.Color('#070b14');
+    scene.background = BG;
+    scene.fog = new THREE.FogExp2(BG, 0.021);
+
+    // studio environment for reflections: a dark room with three soft boxes
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envScene = new THREE.Scene();
+    envScene.add(new THREE.Mesh(new THREE.BoxGeometry(20,20,20), new THREE.MeshBasicMaterial({color:0x0a0f1c, side:THREE.BackSide})));
+    const panel = (c, x, y, z, w, h) => {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({color:c, side:THREE.DoubleSide}));
+      m.position.set(x,y,z); m.lookAt(0,0,0); envScene.add(m);
+    };
+    panel(0xffc489, 0, 9, 0, 12, 5);
+    panel(0x5f7fc8, -9, 2, 3, 4, 9);
+    panel(0xffe6c8, 8, 3, -5, 3, 7);
+    scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+
+    const plaster = new THREE.MeshStandardMaterial({color:0xd6cdbd, roughness:0.84, metalness:0, envMapIntensity:0.32});
+    const floorMat = new THREE.MeshStandardMaterial({color:0x0b111e, roughness:0.32, metalness:0.15, envMapIntensity:0.7});
+
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), floorMat);
+    floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
+
+    // fluted shaft
+    const shaft = new THREE.CylinderGeometry(0.52, 0.6, 10, 96, 20, true);
+    {
+      const p = shaft.attributes.position;
+      for (let i = 0; i < p.count; i++) {
+        const x = p.getX(i), z = p.getZ(i);
+        const a = Math.atan2(z, x);
+        const f = 1 - 0.06 * Math.pow(Math.abs(Math.cos(a * 10)), 0.6);
+        p.setX(i, x * f); p.setZ(i, z * f);
+      }
+      shaft.translate(0, 5.5, 0);
+      shaft.computeVertexNormals();
+    }
+    const plinth = new THREE.BoxGeometry(1.7, 0.5, 1.7); plinth.translate(0, 0.25, 0);
+    const torusBase = new THREE.TorusGeometry(0.66, 0.16, 12, 48); torusBase.rotateX(Math.PI/2); torusBase.translate(0, 0.62, 0);
+    const capital = new THREE.BoxGeometry(1.6, 0.42, 1.6); capital.translate(0, 10.71, 0);
+    const sideArch = new THREE.TorusGeometry(3, 0.4, 18, 64, Math.PI); sideArch.rotateY(Math.PI/2);
+    const vault = new THREE.TorusGeometry(6, 0.5, 18, 96, Math.PI);
+
+    const ZMIN = -66, ZMAX = 66, STEP = 6;
+    const colZ = []; for (let z = ZMIN; z <= ZMAX; z += STEP) colZ.push(z);
+    const nCols = colZ.length * 2;
+    const mk = (geo, n) => { const m = new THREE.InstancedMesh(geo, plaster, n); m.castShadow = true; m.receiveShadow = true; scene.add(m); return m; };
+    const shafts = mk(shaft, nCols), plinths = mk(plinth, nCols), bases = mk(torusBase, nCols), caps = mk(capital, nCols);
+    const arches = mk(sideArch, (colZ.length - 1) * 2);
+    const vaults = mk(vault, Math.ceil(colZ.length / 2));
+    const M = new THREE.Matrix4();
+    let ci = 0, ai = 0, vi = 0;
+    colZ.forEach((z, k) => {
+      for (const x of [-6, 6]) {
+        M.makeTranslation(x, 0, z);
+        shafts.setMatrixAt(ci, M); plinths.setMatrixAt(ci, M); bases.setMatrixAt(ci, M); caps.setMatrixAt(ci, M); ci++;
+        if (k < colZ.length - 1) { M.makeTranslation(x, 10.9, z + STEP/2); arches.setMatrixAt(ai++, M); }
+      }
+      if (k % 2 === 0) { M.makeTranslation(0, 10.9, z); vaults.setMatrixAt(vi++, M); }
+    });
+    const beamGeo = new THREE.BoxGeometry(1.2, 0.7, ZMAX - ZMIN + 2);
+    for (const x of [-6, 6]) { const b = new THREE.Mesh(beamGeo, plaster); b.position.set(x, 14.6, 0); b.castShadow = true; scene.add(b); }
+
+    // living sculpture: noise-displaced spheres with analytic-ish normals
+    const NOISE = `
+      vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+      vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
+      vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}
+      vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
+      float snoise(vec3 v){
+        const vec2 C=vec2(1.0/6.0,1.0/3.0); const vec4 D=vec4(0.0,0.5,1.0,2.0);
+        vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);
+        vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.0-g; vec3 i1=min(g.xyz,l.zxy); vec3 i2=max(g.xyz,l.zxy);
+        vec3 x1=x0-i1+C.xxx; vec3 x2=x0-i2+C.yyy; vec3 x3=x0-D.yyy;
+        i=mod289(i);
+        vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));
+        float n_=0.142857142857; vec3 ns=n_*D.wyz-D.xzx;
+        vec4 j=p-49.0*floor(p*ns.z*ns.z); vec4 x_=floor(j*ns.z); vec4 y_=floor(j-7.0*x_);
+        vec4 x=x_*ns.x+ns.yyyy; vec4 y=y_*ns.x+ns.yyyy; vec4 h=1.0-abs(x)-abs(y);
+        vec4 b0=vec4(x.xy,y.xy); vec4 b1=vec4(x.zw,y.zw);
+        vec4 s0=floor(b0)*2.0+1.0; vec4 s1=floor(b1)*2.0+1.0; vec4 sh=-step(h,vec4(0.0));
+        vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy; vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+        vec3 p0=vec3(a0.xy,h.x); vec3 p1=vec3(a0.zw,h.y); vec3 p2=vec3(a1.xy,h.z); vec3 p3=vec3(a1.zw,h.w);
+        vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+        p0*=norm.x; p1*=norm.y; p2*=norm.z; p3*=norm.w;
+        vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0); m=m*m;
+        return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+      }
+      uniform float uTime; uniform float uAmp; uniform float uSeed;
+      float disp(vec3 n){
+        return uAmp*(0.62*snoise(n*1.35+vec3(uSeed)+uTime*0.07) + 0.24*snoise(n*3.1-uTime*0.05) + 0.06*snoise(n*8.0+uTime*0.03));
+      }`;
+    const sculpts = [];
+    function sculpture(radius, mat, amp, seed, pos) {
+      const geo = new THREE.IcosahedronGeometry(radius, 6);
+      const u = {uTime:{value:0}, uAmp:{value:amp}, uSeed:{value:seed}};
+      mat.onBeforeCompile = sh => {
+        Object.assign(sh.uniforms, u);
+        sh.vertexShader = sh.vertexShader
+          .replace('#include <common>', '#include <common>\n' + NOISE)
+          .replace('#include <beginnormal_vertex>', `
+            vec3 n0 = normalize(position); float r0 = length(position);
+            vec3 tg = normalize(cross(n0, abs(n0.y) < 0.99 ? vec3(0.0,1.0,0.0) : vec3(1.0,0.0,0.0)));
+            vec3 bt = cross(n0, tg); float e = 0.015;
+            vec3 pa = n0*(r0 + disp(n0));
+            vec3 nA = normalize(n0 + tg*e); vec3 pb = nA*(r0 + disp(nA));
+            vec3 nB = normalize(n0 + bt*e); vec3 pc = nB*(r0 + disp(nB));
+            vec3 objectNormal = normalize(cross(pb - pa, pc - pa));
+            vec3 dispPos = pa;`)
+          .replace('#include <begin_vertex>', 'vec3 transformed = dispPos;');
+      };
+      const m = new THREE.Mesh(geo, mat);
+      m.position.copy(pos); m.receiveShadow = true;
+      scene.add(m); sculpts.push({m, u});
+      return m;
+    }
+    sculpture(2.3, plaster.clone(), 0.55, 1.7, new THREE.Vector3(0, 3.0, -32));
+    sculpture(2.4, new THREE.MeshStandardMaterial({color:0x9a7442, roughness:0.28, metalness:0.85, envMapIntensity:1.3}), 0.5, 7.3, new THREE.Vector3(0, 3.9, 8));
+    sculpture(6.0, new THREE.MeshStandardMaterial({color:0x13203d, roughness:0.22, metalness:0.35, envMapIntensity:1.1}), 1.2, 3.1, new THREE.Vector3(-30, 5, 16));
+    sculpture(4.2, plaster.clone(), 0.9, 11.0, new THREE.Vector3(-27, 1.2, -36));
+
+    // the ring the camera threads
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(4.1, 0.55, 32, 160),
+      new THREE.MeshStandardMaterial({color:0xb08a52, roughness:0.25, metalness:0.9, envMapIntensity:1.4}));
+    ring.position.set(0, 4.7, 30); ring.castShadow = true; scene.add(ring);
+
+    // monoliths outside the colonnade, foreground parallax for the long tracking shot
+    const slabGeo = new THREE.BoxGeometry(2.6, 16, 1.1);
+    [[-22,-8,0.12,0.4],[-24,-2,-0.08,-0.2],[-21,38,0.18,0.9],[-25,46,-0.1,0.2],[-23,-58,0.05,-0.5]].forEach(([x,z,tilt,ry]) => {
+      const s = new THREE.Mesh(slabGeo, plaster); s.position.set(x, 6.5, z); s.rotation.set(0, ry, tilt);
+      s.castShadow = s.receiveShadow = true; scene.add(s);
+    });
+
+    // light shafts through the vault
+    const shaftMat = new THREE.ShaderMaterial({
+      transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, side:THREE.DoubleSide,
+      uniforms:{uColor:{value:new THREE.Color(0xffb36b)}, uTime:{value:0}},
+      vertexShader:`varying float vH; varying vec3 vN; varying vec3 vV;
+        void main(){ vH = (position.y + 7.0)/14.0; vec4 mv = modelViewMatrix*vec4(position,1.0);
+          vN = normalize(normalMatrix*normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }`,
+      fragmentShader:`uniform vec3 uColor; uniform float uTime; varying float vH; varying vec3 vN; varying vec3 vV;
+        void main(){ float edge = pow(abs(dot(vN, vV)), 2.0);
+          float a = pow(vH, 1.6) * edge * (0.13 + 0.03*sin(uTime*1.3 + vH*6.0));
+          gl_FragColor = vec4(uColor*a, a); }`
+    });
+    const beams = [];
+    [[0,-32],[0,8],[0,30],[-3,-12],[2,50]].forEach(([x,z]) => {
+      const b = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 4.2, 14, 48, 1, true), shaftMat);
+      b.position.set(x, 7, z); scene.add(b); beams.push(b);
+    });
+
+    // dust in the key light
+    const N = REDUCED ? 600 : 1800;
+    const dpos = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) { dpos[i*3] = (Math.random()-0.5)*16; dpos[i*3+1] = Math.random()*14; dpos[i*3+2] = (Math.random()-0.5)*140; }
+    const dgeo = new THREE.BufferGeometry(); dgeo.setAttribute('position', new THREE.BufferAttribute(dpos, 3));
+    const dust = new THREE.Points(dgeo, new THREE.PointsMaterial({color:0xffd7a8, size:0.05, transparent:true, opacity:0.55, depthWrite:false, blending:THREE.AdditiveBlending}));
+    scene.add(dust);
+
+    // lighting: tungsten key that sweeps the nave, cold moon rim, low fill
+    scene.add(new THREE.HemisphereLight(0x23305a, 0x050608, 0.42));
+    const key = new THREE.SpotLight(0xffb36b, 2.6, 0, 0.62, 0.85, 1);
+    key.position.set(7, 26, -6); key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048); key.shadow.camera.near = 4; key.shadow.camera.far = 90; key.shadow.bias = -0.0004;
+    scene.add(key); scene.add(key.target);
+    const rim = new THREE.DirectionalLight(0x7b98e0, 0.75); rim.position.set(-30, 22, -40); scene.add(rim);
+    const glow = new THREE.PointLight(0xffa860, 1.2, 26, 2); glow.position.set(0, 9, 30); scene.add(glow);
+
+    // camera path: one closed take, down the nave, out the far end, a long tracking run outside, back in
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, 4.7, 52),
+      new THREE.Vector3(0, 4.7, 30),
+      new THREE.Vector3(-3.9, 2.6, 14),
+      new THREE.Vector3(-3.7, 3.4, 2),
+      new THREE.Vector3(2.4, 1.5, -14),
+      new THREE.Vector3(3.8, 2.9, -32),
+      new THREE.Vector3(1, 6.5, -54),
+      new THREE.Vector3(-5, 9.5, -77),
+      new THREE.Vector3(-15, 7, -56),
+      new THREE.Vector3(-16, 3.2, -22),
+      new THREE.Vector3(-14, 5.5, 4),
+      new THREE.Vector3(-12.5, 9, 50),
+      new THREE.Vector3(-5, 8, 78),
+      new THREE.Vector3(0, 5.6, 66)
+    ], true, 'centripetal');
+    const LEN = curve.getLength();
+
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 320);
+    const state = {u: 0, speed: BASE_SPEED, roll: 0, tgt: new THREE.Vector3(), prevT: curve.getTangentAt(0), fovK: 0};
+    state.tgt.copy(curve.getPointAt(0.02));
+
+    function resize() {
+      const W = innerWidth, H = innerHeight;
+      renderer.setSize(W, H, false);
+      camera.aspect = W / H;
+      camera.updateProjectionMatrix();
+    }
+    resize();
+
+    const tmp = new THREE.Vector3(), want = new THREE.Vector3(), cross = new THREE.Vector3();
+
+    function frame(dt, time, desiredSpeed) {
+      state.speed += (desiredSpeed - state.speed) * (1 - Math.exp(-dt * 1.6));
+      state.u = (((state.u + state.speed * dt / LEN) % 1) + 1) % 1;
+      const pos = curve.getPointAt(state.u);
+      const ahead = curve.getPointAt((state.u + 0.022) % 1);
+      want.set(lerp(ahead.x, 0, 0.35), lerp(ahead.y, 3.6, 0.4), ahead.z);
+      state.tgt.lerp(want, 1 - Math.exp(-dt * 2.6));
+
+      // operator hands: slow breathing drift, never a tripod
+      const hs = REDUCED ? 0 : 1;
+      pos.x += Math.sin(time * 0.71) * 0.06 * hs + Math.sin(time * 2.3) * 0.012 * hs;
+      pos.y += Math.sin(time * 0.53 + 1.3) * 0.05 * hs + Math.cos(time * 2.9) * 0.01 * hs;
+      camera.position.copy(pos);
+      camera.up.set(0, 1, 0);
+      camera.lookAt(state.tgt);
+
+      // bank into turns
+      const T = curve.getTangentAt(state.u);
+      cross.crossVectors(state.prevT, T);
+      const turn = cross.y / Math.max(dt, 1e-3);
+      state.prevT.copy(T);
+      const wantRoll = clamp(-turn * 0.22, -0.2, 0.2);
+      state.roll += (wantRoll - state.roll) * (1 - Math.exp(-dt * 1.4));
+      camera.rotateZ(state.roll + Math.sin(time * 0.31) * 0.012 * hs);
+
+      const portrait = camera.aspect < 1;
+      const base = portrait ? 62 : 38;
+      camera.fov = base + (state.speed - BASE_SPEED) * 1.4 + Math.sin(time * 0.17) * 1.5;
+      camera.updateProjectionMatrix();
+
+      // world keeps moving too
+      sculpts.forEach((s, i) => { s.u.uTime.value = time; s.m.rotation.y = time * (0.05 + i * 0.013); });
+      ring.rotation.y = time * 0.11; ring.rotation.x = Math.sin(time * 0.2) * 0.12;
+      key.target.position.set(Math.sin(time * 0.21) * 3, 0, Math.sin(time * 0.09) * 46);
+      key.intensity = 2.6 + Math.sin(time * 1.7) * 0.06;
+      shaftMat.uniforms.uTime.value = time;
+      dust.position.y = Math.sin(time * 0.1) * 0.6;
+      dust.rotation.y = time * 0.004;
+
+      renderer.render(scene, camera);
+      return state.speed;
+    }
+
+    return {frame, resize};
+  }
+
+  const gl = initGL();
+  if (!gl) root.classList.add('no-gl');
+
+  addEventListener('resize', () => { sizeBars(); gl && gl.resize(); });
+
+  // camera pace follows the edit: rush on stage words, ease into the main title
+  function pace(t) {
+    let s = BASE_SPEED + Math.sin(t * 0.37) * 0.6;
+    for (const c of CARDS) {
+      const lt = t - c.t0;
+      if (c.type === 'mega' && lt > -0.6 && lt < c.dur + 0.4) s += 6.5 * Math.sin(Math.PI * clamp((lt + 0.6) / (c.dur + 1.0)));
+      if (c.type === 'title' && lt > 0) s -= 2.6 * clamp(lt / 2);
+    }
+    return Math.max(2.4, s) * (REDUCED ? 0.4 : 1);
+  }
+
+  let last = performance.now(), clock = 0, gf = 0, gAcc = 0, lastSc = -1;
+  function tick(now) {
+    const dt = clamp((now - last) / 1000, 0, 0.05); last = now;
+    clock += dt;
+    if (typeof window.__seek === 'number') { clock = window.__seek; window.__seek = null; }
+    const t = clock % LOOP;
+    const want = pace(t);
+    let speed = want;
+    if (gl) speed = gl.frame(dt, clock, want);
+    vel = REDUCED ? 0 : clamp((speed - BASE_SPEED) / 6.5, -0.5, 1);
+
+    drawCredits(t);
+
+    // film gate weave + grain at 24 fps
+    if (!REDUCED) {
+      gAcc += dt;
+      if (gAcc > 1 / 24) {
+        gAcc = 0; gf = (gf + 1) % grainFrames.length;
+        gctx.putImageData(grainFrames[gf], 0, 0);
+        const wx = (Math.random() - 0.5) * 1.2, wy = (Math.random() - 0.5) * 1.6;
+        glCanvas.style.transform = `translate3d(${wx.toFixed(2)}px,${wy.toFixed(2)}px,0) scale(1.01)`;
+        frameEl.style.transform = megaEl.style.transform = `translate3d(${(wx*0.6).toFixed(2)}px,${(wy*0.6).toFixed(2)}px,0)`;
+      }
+    }
+
+    tcEl.textContent = timecode(t);
+    let sc = 0; CARDS.forEach((c, i) => { if (t >= c.t0) sc = i; });
+    if (sc !== lastSc) { scEl.textContent = 'Sc. ' + pad(sc + 1) + ' / ' + pad(CARDS.length); lastSc = sc; }
+
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
