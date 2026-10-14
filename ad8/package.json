@@ -1,0 +1,29 @@
+{
+  "name": "oxford-branch-8-ad",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render Oxford8 out/oxford-8.mp4"
+  },
+  "dependencies": {
+    "@fontsource/exo-2": "^5.1.0",
+    "@fontsource/inter-tight": "^5.1.0",
+    "@fontsource/jetbrains-mono": "^5.1.0",
+    "@fontsource/manrope": "^5.1.0",
+    "@fontsource/montserrat": "^5.1.0",
+    "@fontsource/onest": "^5.1.0",
+    "@fontsource/oswald": "^5.1.0",
+    "@fontsource/pt-sans": "^5.1.0",
+    "@fontsource/raleway": "^5.1.0",
+    "@fontsource/roboto-condensed": "^5.1.0",
+    "@fontsource/unbounded": "^5.1.0",
+    "@remotion/cli": "^4.0.242",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.242"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "typescript": "^5.6.3"
+  }
+}
