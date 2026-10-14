@@ -89,7 +89,7 @@ export const Opening: React.FC = () => {
         <div style={{position: 'absolute', left: 0, right: 0, top: 360, transform: `translateY(${-t * 6}px)`}}>
           <Kinetic text="ОДНА ЦЕЛЬ" at={2.6} out={4.55} t={t} mode="track" align="center" style={{fontFamily: F.display, fontWeight: 700, fontSize: 96, letterSpacing: '0.32em', color: C.white}} />
           <div style={{height: 18}} />
-          <Kinetic text="ВАШЕ БУДУЩЕЕ" at={3.55} out={4.7} t={t} stagger={0.04} align="center" style={{fontFamily: F.display, fontWeight: 700, fontSize: 190, lineHeight: 1, letterSpacing: '0.01em'}} charStyle={goldFill(t, 0.4)} />
+          <Kinetic text="ВАШЕ БУДУЩЕЕ" at={3.75} out={4.7} t={t} stagger={0.04} align="center" style={{fontFamily: F.display, fontWeight: 700, fontSize: 190, lineHeight: 1, letterSpacing: '0.01em'}} charStyle={goldFill(t, 0.4)} />
         </div>
       </AbsoluteFill>
 

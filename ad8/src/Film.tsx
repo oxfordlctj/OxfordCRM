@@ -64,9 +64,9 @@ export const Film: React.FC = () => {
     <AbsoluteFill style={{background: C.ink}}>
       {/* scenes share the master clock (no Sequence offset) so timings read straight off the VO */}
       <Fade from={0} to={6.0} fout={0.7}><Opening /></Fade>
-      <Fade from={4.9} to={15.0} fin={0.8} fout={0.5}><Country /></Fade>
-      <Fade from={14.2} to={57.2} fin={0.01} fout={0.6}><City /></Fade>
-      <Fade from={56.6} to={T.duration + 1} fin={0.6}><Logo /></Fade>
+      <Fade from={4.8} to={14.4} fin={0.8} fout={0.5}><Country /></Fade>
+      <Fade from={13.5} to={T.hits.logo + 0.4} fin={0.01} fout={0.6}><City /></Fade>
+      <Fade from={T.hits.logo - 0.2} to={T.duration + 1} fin={0.6}><Logo /></Fade>
       <Gate />
       <Sequence from={0}>
         <Audio src={staticFile('soundtrack.wav')} />
