@@ -189,3 +189,78 @@ export const Pill: React.FC<{
 
 export const fadeOut = (frame: number, end: number, len = 6) =>
   interpolate(frame, [end - len, end], [1, 0], clamp);
+
+/**
+ * Cinematic per-letter reveal: each glyph flips up in 3D with a short stagger,
+ * then a light sweep travels across the word.
+ */
+export const FlipText: React.FC<{
+  at: number;
+  text: string;
+  size: number;
+  color?: string;
+  gradient?: string;
+  weight?: number;
+  stagger?: number;
+  sweep?: boolean;
+  glow?: string;
+  style?: React.CSSProperties;
+}> = ({ at, text, size, color = "#fff", gradient, weight = 900, stagger = 1.2, sweep = true, glow, style }) => {
+  const frame = useCurrentFrame();
+  const chars = Array.from(text);
+  const sweepX = interpolate(frame, [at + 6, at + 26], [-30, 130], clamp);
+  return (
+    <div
+      style={{
+        position: "relative",
+        fontFamily: DISPLAY,
+        fontWeight: weight,
+        fontSize: size,
+        lineHeight: 1.04,
+        textAlign: "center",
+        perspective: 900,
+        whiteSpace: "nowrap",
+        filter: glow ? `drop-shadow(0 0 28px ${glow})` : undefined,
+        ...style,
+      }}
+    >
+      {chars.map((ch, i) => {
+        const a = at + i * stagger;
+        return (
+          <span
+            key={i}
+            style={{
+              display: "inline-block",
+              whiteSpace: "pre",
+              color: gradient ? "transparent" : color,
+              backgroundImage: gradient,
+              backgroundClip: gradient ? "text" : undefined,
+              WebkitBackgroundClip: gradient ? "text" : undefined,
+              transformOrigin: "50% 100%",
+              rotate: `x ${interpolate(frame, [a, a + 9], [95, 0], { ...clamp, easing: punch })}deg`,
+              translate: `0px ${interpolate(frame, [a, a + 9], [size * 0.35, 0], { ...clamp, easing: easeOut })}px`,
+              opacity: interpolate(frame, [a, a + 4], [0, 1], clamp),
+            }}
+          >
+            {ch}
+          </span>
+        );
+      })}
+      {sweep ? (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: `linear-gradient(105deg, rgba(255,255,255,0) ${sweepX - 12}%, rgba(255,255,255,0.75) ${sweepX}%, rgba(255,255,255,0) ${sweepX + 12}%)`,
+            mixBlendMode: "overlay",
+            pointerEvents: "none",
+          }}
+        />
+      ) : null}
+    </div>
+  );
+};
+
+export const GOLD = "linear-gradient(180deg, #FFFFFF 0%, #FFF3D6 45%, #FFC66B 100%)";
+export const ICE = "linear-gradient(180deg, #FFFFFF 0%, #D9F1FF 50%, #7CCBF0 100%)";
+export const FIRE = "linear-gradient(180deg, #FFB199 0%, #FF4A3D 50%, #C90E18 100%)";

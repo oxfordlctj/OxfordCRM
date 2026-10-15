@@ -12,15 +12,21 @@ import wave
 import numpy as np
 
 SR = 44100
-DUR = 44.5
+DUR = 47.0
 N = int(SR * DUR)
 rng = np.random.default_rng(7)
 
-DROP = 18.7  # "НЕ!" impact
-BEAT_START = 19.7
+# Cues in composition seconds (voiceover onsets + 2.5 s cold open), see src/theme.ts.
+OFF = 2.5 - 1 / 30
+VO = dict(oneDay=0.16, but=4.37, pain1=6.07, pain2=7.79, pain3=9.91, peers=12.03, andHe=14.77,
+          no=18.25, center=19.26, aplus=21.05, reading=24.68, writing=25.38, math=26.45, logic=27.0,
+          confidence=28.07, yourChild=29.0, smile=33.4, seats=35.79, enroll=36.99, brand=38.07)
+T = {k: v + OFF for k, v in VO.items()}
+DROP = T["no"]
+BEAT_START = T["center"]
 BPM = 128
 BEAT = 60 / BPM
-END_HIT = 38.6
+END_HIT = T["brand"]
 
 L = np.zeros(N)
 R = np.zeros(N)
@@ -217,44 +223,75 @@ def bass(freq, length):
     return s * env_adsr(n, 0.02, 0.1, 0.8, 0.08)
 
 
-# ---------- ACT 1: pain ----------
-# drone D1 with slow swell
+# ---------- COLD OPEN ----------
+place(boom(3.0, 60, 30), 0.15, 0.8)
+place(shimmer(2.4, 74), 0.3, 0.25)
+place(whoosh(1.4, True), 1.0, 0.25)
+
+
+def piano(freq, length=1.6):
+    n = int(length * SR)
+    t = t_arr(n)
+    s = sum(np.sin(2 * np.pi * freq * h * t) * g * np.exp(-t * (2.5 + h)) for h, g in [(1, 1), (2, 0.4), (3, 0.18), (4, 0.08)])
+    return s * (1 - np.exp(-t * 400))
+
+
+# ---------- MORNING: warm, hopeful ----------
+m0, m1 = 2.3, T["but"]
+place(pad([62, 66, 69, 73], m1 - m0 + 0.6), m0, 0.12)
+place(pad([38, 50], m1 - m0 + 0.6), m0, 0.12)
+arp = [62, 66, 69, 73, 74, 73, 69, 66]
+k = 0
+tt = m0 + 0.1
+while tt < m1 - 0.1:
+    place(piano(note(arp[k % 8] + 12)), tt, 0.14, pan=-0.3 if k % 2 else 0.3)
+    tt += 60 / 100 / 2
+    k += 1
+
+# ---------- "Аммо..." freeze: tape-stop + tension ----------
+n = int(0.7 * SR)
+tt_ = t_arr(n)
+f = 300 * np.exp(-tt_ * 4)
+place(np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt_ * 3), T["but"], 0.25)
+place(boom(2.5, 50, 28), T["but"], 0.6)
+
 dn_end = DROP - 0.3
-n = int(dn_end * SR)
+n = int((dn_end - T["but"]) * SR)
 t = t_arr(n)
-drone = (supersaw(note(26), n, 5, 0.004) + 0.6 * supersaw(note(33), n, 5, 0.004)) * 0.5
-drone = fft_filter(drone, hi=420)
-drone *= np.clip(t / 3, 0, 1) * (0.55 + 0.45 * t / dn_end)
+drone = (supersaw(note(38), n, 5, 0.004) + 0.6 * supersaw(note(45), n, 5, 0.004)) * 0.5
+drone = fft_filter(drone, hi=500)
+drone *= np.clip(t / 1.5, 0, 1) * (0.5 + 0.5 * t / t[-1])
 drone[-int(0.25 * SR):] *= np.linspace(1, 0, int(0.25 * SR))
-place(drone, 0, 0.55)
+place(drone, T["but"], 0.42)
 
-# dissonant high string tension (minor 2nd cluster) from 11.5s
-n = int((dn_end - 11.5) * SR)
-t = t_arr(n)
-ten = sum(np.sin(2 * np.pi * note(m) * t + rng.random() * 6) for m in (74, 75, 81)) / 3
-ten *= (0.5 + 0.5 * np.sin(2 * np.pi * 5.5 * t)) * np.clip(t / 3, 0, 1)
-ten[-int(0.25 * SR):] *= np.linspace(1, 0, int(0.25 * SR))
-place(ten, 11.5, 0.07)
-
-place(boom(4.0), 0.0, 0.9)
-# ticking clock: speeds up during the pain list
-tt = 0.9
+# pulsing ostinato (strings feel) D minor, accelerating into the race
+tt = T["pain1"]
+k = 0
+seq = [50, 50, 53, 50, 57, 50, 53, 55]
+while tt < dn_end - 0.1:
+    place(pluck(note(seq[k % 8]), 0.25), tt, 0.12, pan=0.25 if k % 2 else -0.25)
+    tt += 0.25 if tt < T["peers"] else 0.1875
+    k += 1
+# heartbeat in the race
+for hb in np.arange(T["peers"], dn_end - 0.4, 0.8):
+    place(heartbeat(), hb, 0.45)
+# ticking clock
+tt = T["pain1"]
 while tt < dn_end - 0.2:
-    place(tick(int(tt * 2) % 2 == 0), tt, 0.16, pan=0.35 if int(tt * 2) % 2 else -0.35)
-    tt += 0.5 if tt < 12 else 0.25
-# heartbeats
-for hb in np.arange(2.6, dn_end - 0.4, 0.95 if True else 1):
-    place(heartbeat(), hb, 0.55)
-# braams on each pain line
-for at in (4.8, 6.5, 8.3, 10.4, 12.5, 15.2):
-    place(braam(2.6, 38 if at not in (12.5,) else 36), at - 0.02, 0.42)
-place(whoosh(0.9, False), 4.4, 0.25)
+    place(tick(int(tt * 4) % 2 == 0), tt, 0.1, pan=0.3)
+    tt += 0.5
+# hits on each pain card
+for at in (T["pain1"], T["pain2"], T["pain3"]):
+    place(braam(2.2, 38), at - 0.02, 0.32)
+    place(boom(1.5, 90, 40), at, 0.45)
+place(whoosh(0.8, True), T["peers"] - 0.6, 0.25)
 place(riser(3.4), DROP - 3.5, 0.5)
 
 # ---------- DROP ----------
 place(boom(4.5, 70, 26), DROP, 1.1)
-place(braam(3.2, 38), DROP, 0.55)
+place(braam(3.2, 38), DROP, 0.5)
 place(fft_filter(rng.standard_normal(int(1.2 * SR)), lo=500) * np.exp(-t_arr(int(1.2 * SR)) * 5), DROP, 0.35)
+place(shimmer(3.0, 74), DROP + 0.05, 0.3)
 
 # ---------- ACT 2: solution ----------
 prog = [  # D  A  Bm  G (bars of 4 beats)
@@ -292,16 +329,19 @@ while tb < music_end - 0.01:
     tb += bar
     b += 1
 
-# accents on the 5-skills sequence and transitions
-place(whoosh(1.0, True), 20.7, 0.35)  # into logo reveal
-place(shimmer(3.0, 74), 21.6, 0.3)
-place(boom(2.5, 80, 40), 21.6, 0.5)
-for at in (25.2, 25.9, 26.9, 27.35, 28.5):
-    place(boom(0.7, 120, 60), at, 0.35)
-    place(hat(True), at, 0.25)
-place(whoosh(0.8, True), 29.1, 0.25)
-place(shimmer(2.0, 81), 33.5, 0.22)
-place(whoosh(1.0, True), 35.4, 0.3)
+# accents
+place(whoosh(1.0, True), T["aplus"] - 1.0, 0.35)
+place(shimmer(3.0, 74), T["aplus"], 0.3)
+place(boom(2.5, 80, 40), T["aplus"], 0.5)
+for at in (T["reading"], T["writing"], T["writing"] + 0.33, T["writing"] + 0.66, T["math"], T["logic"], T["logic"] + 0.4):
+    place(boom(0.6, 140, 70), at, 0.28)
+    place(hat(True), at, 0.22)
+place(shimmer(2.0, 81), T["confidence"], 0.3)
+place(boom(1.5, 90, 45), T["confidence"], 0.4)
+place(whoosh(0.8, True), T["yourChild"] - 0.4, 0.25)
+place(shimmer(2.0, 81), T["smile"], 0.22)
+place(whoosh(1.0, True), T["seats"] - 0.5, 0.3)
+place(boom(0.8, 160, 80), T["enroll"] + 0.6, 0.3)
 place(riser(1.8), END_HIT - 1.85, 0.35)
 
 # ---------- END ----------

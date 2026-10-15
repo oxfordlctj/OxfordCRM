@@ -55,9 +55,9 @@ Note that for some entities a company license is needed. [Read the terms here](h
 
 ## A+ Kids — школа тайёрӣ (Instagram Reel)
 
-- Готовое видео: `final/APlus-Kids-Reel.mp4` (1080×1920, 30 fps, 44.5 s)
+- Готовое видео: `final/APlus-Kids-Reel.mp4` (1080×1920, 30 fps, 47 s)
 - Озвучка (таджикский, ElevenLabs v3): `public/vo.mp3`
 - Музыка/SFX синтезированы скриптом `scripts/make_music.py`, затем приглушены под голос (sidechain) → `public/music_duck.wav`
-- Тайминги всех надписей синхронизированы с голосом в `src/theme.ts` (объект `T`)
+- Тайминги всех надписей синхронизированы с голосом в `src/theme.ts` (объект `VO` — замеренные начала слов)
 
 Рендер: `npx remotion render APlusReel out/APlus-Kids-Reel.mp4`

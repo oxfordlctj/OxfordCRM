@@ -20,10 +20,10 @@ export const MONO = "'Fira Mono', monospace";
 export const FPS = 30;
 export const WIDTH = 1080;
 export const HEIGHT = 1920;
-export const DURATION_S = 44.5;
+export const DURATION_S = 47;
 
-// Voiceover starts this many seconds into the composition (room for the opening boom).
-export const VO_OFFSET = 0.5;
+// Voiceover starts after a 2.5 s "A+ presents" cold open.
+export const VO_OFFSET = 2.5;
 
 // Brand colours sampled from the A+ kids logo.
 export const C = {
@@ -32,9 +32,12 @@ export const C = {
   orange: "#F7731C",
   yellow: "#FFC20E",
   navy: "#16203D",
+  midnight: "#0B1430",
   paper: "#FFFDF7",
   ink: "#0A0A0D",
   ash: "#8A8F99",
+  gold: "#FFD68A",
+  green: "#3DD68C",
 };
 
 export const s = (seconds: number) => Math.round(seconds * FPS);
@@ -46,60 +49,68 @@ export const clamp = {
 
 export const easeOut = Easing.bezier(0.16, 1, 0.3, 1);
 export const easeIn = Easing.bezier(0.7, 0, 0.84, 0);
+export const easeInOut = Easing.bezier(0.65, 0, 0.35, 1);
 export const punch = Easing.bezier(0.2, 0.9, 0.1, 1);
 
-// Every cue below is in composition seconds, already synced to the voiceover take.
-export const T = {
-  // ACT 1 — the pain
-  oneDay: 0.6,
-  child: 1.7,
-  toSchool: 2.7,
-  goes: 3.1,
-  but: 4.8,
-  isHe: 5.2,
-  ready: 5.35,
-  pain1: 6.5,
-  pain2: 8.3,
-  pain3: 10.4,
-  peers: 12.5,
-  ahead: 13.4,
-  andHe: 15.2,
-  behind: 15.6,
-  question: 16.35,
-  blackout: 18.45,
-  // DROP
-  no: 18.7,
-  // ACT 2 — the solution
-  center: 19.7,
-  learning: 20.3,
-  logo: 21.6,
-  course: 23.3,
-  forSchool: 24.3,
-  skills: [25.2, 25.9, 26.9, 27.35, 28.5],
-  yourChild: 29.5,
-  toSchool2: 30.9,
-  notFear: 31.8,
-  strike: 32.7,
-  but2: 33.5,
-  smile: 33.7,
-  goes2: 34.7,
-  seats: 36.3,
-  seats2: 36.6,
-  enroll: 37.5,
-  end: 38.6,
+// Word onsets measured from the voiceover waveform (10 ms resolution), in VO seconds.
+const VO = {
+  oneDay: 0.16,
+  child: 1.06,
+  toSchool: 2.26,
+  goes: 2.72,
+  but: 4.37,
+  ready: 4.75,
+  pain1: 6.07,
+  pain2: 7.79,
+  pain3: 9.91,
+  pain3b: 10.59,
+  peers: 12.03,
+  ahead: 12.82,
+  andHe: 14.77,
+  behind: 15.83,
+  no: 18.25,
+  center: 19.26,
+  aplus: 21.05,
+  course: 22.83,
+  forSchool: 23.71,
+  reading: 24.68,
+  writing: 25.38,
+  math: 26.45,
+  logic: 27.0,
+  confidence: 28.07,
+  yourChild: 29.0,
+  toSchool2: 30.35,
+  notFear: 31.3,
+  fear: 31.8,
+  but2: 33.0,
+  smile: 33.4,
+  goes2: 34.25,
+  seats: 35.79,
+  seats2: 36.2,
+  enroll: 36.99,
+  brand: 38.07,
 };
+
+// Cues in composition seconds; text lands one frame before the syllable.
+const LEAD = 1 / FPS;
+export const T = Object.fromEntries(
+  Object.entries(VO).map(([k, v]) => [k, v + VO_OFFSET - LEAD]),
+) as Record<keyof typeof VO, number>;
 
 // Moments that kick the virtual camera.
 export const HITS: { t: number; power: number }[] = [
-  { t: 0, power: 22 },
-  { t: T.but, power: 8 },
-  { t: T.pain1, power: 16 },
-  { t: T.pain2, power: 16 },
-  { t: T.pain3, power: 18 },
-  { t: T.peers, power: 10 },
-  { t: T.andHe, power: 10 },
+  { t: 0.15, power: 10 },
+  { t: T.oneDay, power: 8 },
+  { t: T.pain1, power: 14 },
+  { t: T.pain2, power: 14 },
+  { t: T.pain3, power: 16 },
   { t: T.no, power: 46 },
-  { t: T.logo, power: 14 },
-  ...[25.2, 25.9, 26.9, 27.35, 28.5].map((t) => ({ t, power: 7 })),
-  { t: T.end, power: 20 },
+  { t: T.aplus, power: 16 },
+  { t: T.reading, power: 6 },
+  { t: T.writing, power: 6 },
+  { t: T.math, power: 6 },
+  { t: T.logic, power: 6 },
+  { t: T.confidence, power: 10 },
+  { t: T.enroll, power: 8 },
+  { t: T.brand, power: 18 },
 ];
