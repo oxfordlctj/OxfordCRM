@@ -119,7 +119,7 @@ def rms_db(x):
     return 20 * np.log10(np.sqrt((x ** 2).mean()) + 1e-12)
 
 
-bed *= 10 ** ((-19.0 - rms_db(bed)) / 20)
+bed *= 10 ** ((-20.5 - rms_db(bed)) / 20)
 
 # VO
 raw = subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(ROOT, "data", "vo", Q["vo_file"]), "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"], capture_output=True, check=True).stdout
@@ -137,7 +137,7 @@ voiced = np.abs(vo).mean(0) > 1e-3
 vo *= 10 ** ((-12.5 - rms_db(vo[:, voiced])) / 20)
 
 ve = np.convolve(np.abs(vo).mean(0), np.ones(int(0.08 * SR)) / int(0.08 * SR), mode="same")
-duck = 1 - 0.5 * np.clip(ve / (np.percentile(ve[ve > 1e-4], 90) + 1e-9), 0, 1)
+duck = 1 - 0.68 * np.clip(ve / (np.percentile(ve[ve > 1e-4], 90) + 1e-9), 0, 1)
 mix = bed * duck + vo
 mix = np.tanh(mix * 1.15) / np.tanh(1.15)
 mix /= np.abs(mix).max() / 0.95
