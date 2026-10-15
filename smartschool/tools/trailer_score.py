@@ -324,6 +324,10 @@ def duck_gap(buf, a, b):
 for g in ((SEC['climax'][0] - 0.25, SEC['climax'][0]), (SEC['outro'][0] - 0.2, SEC['outro'][0])):
     for buf in (music, drums):
         duck_gap(buf, *g)
+# trailer 'drop-outs': the bed cuts to silence so a hook line lands alone
+for g in TR.get('silences', []):
+    for buf in (music, drums, fx):
+        duck_gap(buf, *g)
 
 # ── buses ──
 ir_big = impulse_response(3.0, 1.7)
@@ -355,7 +359,7 @@ vo = vo + fft_filter(vo, hi=220) * 0.5 + fft_filter(vo, lo=2500, hi=6000) * 0.4
 vo = np.tanh(vo * 2.2) / np.tanh(2.2)
 vo = vo + convolve(vo, impulse_response(1.0, 5.0, 0.01, 5000)) * 0.12
 voiced = np.abs(vo).mean(0) > 1e-3
-vo *= 10 ** ((-13.0 - rms_db(vo[:, voiced])) / 20)
+vo *= 10 ** ((-12.0 - rms_db(vo[:, voiced])) / 20)
 
 # sidechain: bed ducks under the voice (but keeps its punch)
 ve = np.abs(vo).mean(0)
