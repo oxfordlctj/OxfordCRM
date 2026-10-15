@@ -2,7 +2,7 @@ import React from 'react';
 import {AbsoluteFill, Img, staticFile} from 'remotion';
 import city from '../../public/city.json';
 import branches from '../branches.json';
-import {C, F, Kinetic, T, Wipe, clamp, goldFill, inCubic, lerp, outBack, outCubic, outExpo, prog, rand, shake, track, useTime, window_} from '../lib';
+import {C, F, Kinetic, T, Wipe, clamp, goldFill, inCubic, lerp, outBack, outCubic, outExpo, prog, rand, shake, track, useBare, useTime, window_} from '../lib';
 import {Billboard, Cam, Ground, MapPlane} from '../MapPlane';
 import {Extruded} from './Opening';
 
@@ -129,6 +129,7 @@ const Icon = {
 
 export const City: React.FC = () => {
   const t = useTime();
+  const bare = useBare();
   const k = track(KEYS, t);
   const kick = Math.max(0, 1 - (t - REVEAL) / 1.4) * (t >= REVEAL ? 1 : 0);
   const sh = shake(t, 3 + kick * 26, 0.7 + kick * 6, 4);
@@ -296,7 +297,7 @@ export const City: React.FC = () => {
       <AbsoluteFill style={{background: 'linear-gradient(to bottom, rgba(10,16,30,.92) 0%, rgba(10,16,30,.45) 20%, transparent 42%)'}} />
 
       {/* ── typography layer ── */}
-      <AbsoluteFill style={{opacity: 1 - whip}}>
+      {!bare && (<AbsoluteFill style={{opacity: 1 - whip}}>
         {/* ДУШАНБЕ */}
         <div style={{position: 'absolute', left: 0, right: 0, top: 170, transform: `translateY(${(t - 13.9) * -6}px)`}}>
           <Kinetic text="ДУШАНБЕ" at={14.1} out={17.9} t={t} stagger={0.05} align="center" style={{fontFamily: F.display, fontWeight: 700, fontSize: 230, lineHeight: 1, letterSpacing: '0.08em', color: C.white, textShadow: '0 12px 60px rgba(0,0,0,.7)'}} />
@@ -357,7 +358,7 @@ export const City: React.FC = () => {
           <ReasonRow t={t} at={R[2]} next={R[3]} idx={3} icon={Icon.school} title="ШКОЛЫ И ВУЗЫ РЯДОМ" sub="Ученики в шаговой доступности" />
           <ReasonRow t={t} at={R[3]} next={99} idx={4} icon={Icon.home} title="В ЦЕНТРЕ ВАШЕЙ ЖИЗНИ" sub="Лучшее образование — рядом" />
         </div>
-      </AbsoluteFill>
+      </AbsoluteFill>)}
 
       {/* reveal flash */}
       <AbsoluteFill style={{background: 'radial-gradient(circle at 50% 55%, #fff, #ffd79a 40%, rgba(255,200,120,0) 80%)', opacity: t >= REVEAL ? Math.max(0, 1 - (t - REVEAL) / 0.5) * 0.95 : clamp((t - (REVEAL - 0.08)) / 0.08) * 0.5, mixBlendMode: 'screen'}} />

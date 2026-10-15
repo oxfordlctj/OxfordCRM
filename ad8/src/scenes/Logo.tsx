@@ -1,13 +1,15 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import logo from '../logo.json';
-import {C, F, Kinetic, T, Wipe, clamp, inOutSine, lerp, outExpo, prog, shake, useTime} from '../lib';
+import {C, F, Kinetic, T, Wipe, clamp, inOutSine, lerp, outExpo, prog, shake, useBare, usePortrait, useTime} from '../lib';
 import {Dust} from './Opening';
 
 const L0 = T.hits.logo;
 
 export const Logo: React.FC = () => {
   const t = useTime();
+  const bare = useBare();
+  const {width, portrait} = usePortrait();
   const lt = t - L0;
   const sh = shake(t, 3, 0.4, 9);
   const reveal = outExpo(prog(lt, 0.0, 2.4));
@@ -20,7 +22,7 @@ export const Logo: React.FC = () => {
   const dolly = 0.86 + lt * 0.018;
   const yaw = lerp(-14, 6, inOutSine(prog(lt, 0, 8.5)));
 
-  const w = 560;
+  const w = portrait ? 660 : 560;
   const sc = w / logo.w;
 
   return (
@@ -30,7 +32,7 @@ export const Logo: React.FC = () => {
       <Dust t={t} n={90} speed={0.5} seed={7} />
 
       <AbsoluteFill style={{perspective: 1400, transform: `translate(${sh.x}px, ${sh.y}px)`}}>
-        <div style={{position: 'absolute', left: 960 - w / 2, top: 108, width: w, transformStyle: 'preserve-3d', transform: `scale(${dolly}) rotateY(${yaw}deg) rotateX(${lerp(8, 0, reveal)}deg)`, transformOrigin: '50% 40%'}}>
+        <div style={{position: 'absolute', left: width / 2 - w / 2, top: portrait ? 190 : 108, width: w, transformStyle: 'preserve-3d', transform: `scale(${dolly}) rotateY(${yaw}deg) rotateX(${lerp(8, 0, reveal)}deg)`, transformOrigin: '50% 40%'}}>
           <svg viewBox={`0 0 ${logo.w} ${logo.h}`} width={w} height={logo.h * sc} style={{overflow: 'visible'}}>
             <defs>
               <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0.35">
@@ -63,7 +65,7 @@ export const Logo: React.FC = () => {
       </AbsoluteFill>
 
       {/* end card copy */}
-      <div style={{position: 'absolute', left: 0, right: 0, top: 830, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6}}>
+      {!bare && <div style={{position: 'absolute', left: 0, right: 0, top: 830, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6}}>
         <Kinetic text="ФИЛИАЛ №8 · ДОМПЕЧАТЬ" at={T.endcard[0]} out={T.duration + 2} t={t} stagger={0.025} align="center" style={{fontFamily: F.display, fontWeight: 700, fontSize: 58, letterSpacing: '0.12em', color: C.white}} />
         <Wipe at={T.endcard[1]} out={T.duration + 2} t={t}>
           <div style={{display: 'flex', alignItems: 'center', gap: 18}}>
@@ -72,7 +74,7 @@ export const Logo: React.FC = () => {
             <div style={{width: 60, height: 1.5, background: C.gold}} />
           </div>
         </Wipe>
-      </div>
+      </div>}
     </AbsoluteFill>
   );
 };

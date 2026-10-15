@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Img, staticFile} from 'remotion';
+import {AbsoluteFill, Img, staticFile, useVideoConfig} from 'remotion';
 
 export type Cam = {cx: number; cy: number; zoom: number; tilt: number; rz: number};
 
@@ -20,7 +20,12 @@ export const MapPlane: React.FC<{
   sy?: number;
   ground?: string;
 }> = ({src, w, h, cam, anchorY = 600, perspective = 1500, children, style, sx = 0, sy = 0, ground = '#0a0f1a'}) => {
-  const tr = `translate3d(${960 + sx}px, ${anchorY + sy}px, 0) rotateX(${cam.tilt}deg) rotateZ(${cam.rz}deg) scale(${cam.zoom}) translate3d(${-cam.cx}px, ${-cam.cy}px, 0)`;
+  const {width, height} = useVideoConfig();
+  // portrait frames keep the same horizon height relative to the subject, just lower on screen
+  const portrait = height > width;
+  anchorY += portrait ? (height - 1080) * 0.42 : 0;
+  perspective = portrait ? perspective * 1.9 : perspective;
+  const tr = `translate3d(${width / 2 + sx}px, ${anchorY + sy}px, 0) rotateX(${cam.tilt}deg) rotateZ(${cam.rz}deg) scale(${cam.zoom}) translate3d(${-cam.cx}px, ${-cam.cy}px, 0)`;
   return (
     <AbsoluteFill style={{perspective, perspectiveOrigin: `50% ${anchorY - 140}px`, overflow: 'hidden', ...style}}>
       <div style={{position: 'absolute', left: 0, top: 0, width: w, height: h, transformOrigin: '0 0', transformStyle: 'preserve-3d', transform: tr}}>

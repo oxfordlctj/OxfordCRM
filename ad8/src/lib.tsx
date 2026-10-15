@@ -24,10 +24,21 @@ export const F = {
   mono: '"JetBrains Mono", Menlo, monospace',
 };
 
+/** an edit can retime a scene: shots map their own clock onto the scene's clock */
+export const TimeMap = React.createContext<((t: number) => number) | null>(null);
+/** 'bare' scenes drop their screen-space titles so the trailer can set its own type */
+export const Bare = React.createContext(false);
+
 export const useTime = () => {
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
-  return f / fps;
+  const map = React.useContext(TimeMap);
+  return map ? map(f / fps) : f / fps;
+};
+export const useBare = () => React.useContext(Bare);
+export const usePortrait = () => {
+  const {width, height} = useVideoConfig();
+  return {width, height, portrait: height > width};
 };
 
 export const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));

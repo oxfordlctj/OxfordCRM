@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Img, staticFile} from 'remotion';
 import country from '../../public/country.json';
-import {C, F, Kinetic, Wipe, clamp, inCubic, lerp, outExpo, prog, shake, track, useTime} from '../lib';
+import {C, F, Kinetic, Wipe, clamp, inCubic, lerp, outExpo, prog, shake, track, useBare, useTime} from '../lib';
 import {Billboard, Cam, Ground, MapPlane} from '../MapPlane';
 
 const L = country.labels as unknown as Record<string, [number, number]>;
@@ -34,6 +34,7 @@ const PlaceLabel: React.FC<{name: string; sub?: string; t: number; at: number; o
 
 export const Country: React.FC = () => {
   const t = useTime();
+  const bare = useBare();
   const k = track(KEYS, t);
   const sh = shake(t, 4, 0.5, 2);
   const cam: Cam = {cx: k.cx, cy: k.cy, zoom: k.zoom, tilt: k.tilt, rz: k.rz + sh.r * 20};
@@ -83,7 +84,7 @@ export const Country: React.FC = () => {
       <AbsoluteFill style={{background: 'linear-gradient(to bottom, rgba(40,60,90,.75) 0%, rgba(30,45,70,.35) 22%, transparent 45%)'}} />
 
       {/* title */}
-      <AbsoluteFill style={{transform: `translateX(${-(t - 8.4) * 14}px)`}}>
+      {!bare && (<AbsoluteFill style={{transform: `translateX(${-(t - 8.4) * 14}px)`}}>
         <div style={{position: 'absolute', left: 0, right: 0, top: 150}}>
           <Kinetic text="ТОҶИКИСТОН" at={8.4} out={11.1} t={t} mode="track" align="center" style={{fontFamily: F.display, fontWeight: 700, fontSize: 210, letterSpacing: '0.16em', color: 'rgba(255,255,255,.92)', textShadow: '0 10px 60px rgba(0,0,0,.6)'}} />
         </div>
@@ -92,7 +93,7 @@ export const Country: React.FC = () => {
             <div style={{fontFamily: F.body, fontWeight: 500, fontSize: 28, letterSpacing: '0.42em', color: C.ivory, textShadow: '0 2px 20px rgba(0,0,0,.8)'}}>ОТ ПАМИРА ДО ГИССАРА</div>
           </Wipe>
         </div>
-      </AbsoluteFill>
+      </AbsoluteFill>)}
 
       <AbsoluteFill style={{background: '#fff', opacity: clamp((dive - 0.6) * 1.6) * 0.9}} />
     </AbsoluteFill>
