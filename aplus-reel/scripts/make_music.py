@@ -12,15 +12,16 @@ import wave
 import numpy as np
 
 SR = 44100
-DUR = 47.0
+DUR = 55.5
 N = int(SR * DUR)
 rng = np.random.default_rng(7)
 
 # Cues in composition seconds (voiceover onsets + 2.5 s cold open), see src/theme.ts.
 OFF = 2.5 - 1 / 30
-VO = dict(oneDay=0.16, but=4.37, pain1=6.07, pain2=7.79, pain3=9.91, peers=12.03, andHe=14.77,
-          no=18.25, center=19.26, aplus=21.05, reading=24.68, writing=25.38, math=26.45, logic=27.0,
-          confidence=28.07, yourChild=29.0, smile=33.4, seats=35.79, enroll=36.99, brand=38.07)
+VO = dict(oneDay=0.14, but=4.16, pain1=8.3, pain2=9.8, pain3=11.48, peers=13.14, andHe=15.3,
+          question=17.64, no=21.82, center=22.74, aplus=23.76, english=26.4, russian=27.76, math=29.0,
+          world=30.2, reading=31.42, writing=32.4, logic=33.5, confidence=34.54, yourChild=36.26,
+          smile=40.06, seats=42.2, enroll=43.64, brand=45.36)
 T = {k: v + OFF for k, v in VO.items()}
 DROP = T["no"]
 BEAT_START = T["center"]
@@ -333,7 +334,7 @@ while tb < music_end - 0.01:
 place(whoosh(1.0, True), T["aplus"] - 1.0, 0.35)
 place(shimmer(3.0, 74), T["aplus"], 0.3)
 place(boom(2.5, 80, 40), T["aplus"], 0.5)
-for at in (T["reading"], T["writing"], T["writing"] + 0.33, T["writing"] + 0.66, T["math"], T["logic"], T["logic"] + 0.4):
+for at in (T["english"], T["russian"], T["math"], T["world"], T["reading"], T["writing"], T["logic"]):
     place(boom(0.6, 140, 70), at, 0.28)
     place(hat(True), at, 0.22)
 place(shimmer(2.0, 81), T["confidence"], 0.3)

@@ -134,9 +134,9 @@ export const Morning: React.FC = () => {
       {frame >= freeze ? (
         <Stack top={300} gap={0}>
           <FlipText at={freeze} text="АММО..." size={70} weight={700} sweep={false} style={{ letterSpacing: 14, color: "#fff" }} />
-          <FlipText at={s(T.ready) - 6} text="ОЁ Ӯ" size={110} />
+          <FlipText at={s(T.isHe)} text="ОЁ Ӯ" size={110} />
           <FlipText at={s(T.ready)} text="ОМОДА" size={180} gradient={FIRE} glow="rgba(232,20,27,0.5)" />
-          <FlipText at={s(T.ready) + 8} text="АСТ?" size={150} />
+          <FlipText at={s(T.ast)} text="АСТ?" size={150} />
         </Stack>
       ) : null}
     </AbsoluteFill>
@@ -321,8 +321,9 @@ const PainCard: React.FC<{
   index: string;
   top: string;
   bottom: string;
+  bottomAt: number;
   art: React.ReactNode;
-}> = ({ at, end, index, top, bottom, art }) => {
+}> = ({ at, end, index, top, bottom, bottomAt, art }) => {
   const frame = useCurrentFrame();
   if (frame < at || frame >= end) return null;
   const t = frame - at;
@@ -353,7 +354,7 @@ const PainCard: React.FC<{
       </AbsoluteFill>
       <Stack top={1180} gap={0}>
         <FlipText at={at} text={top} size={104} gradient={ICE} />
-        <FlipText at={at + 5} text={bottom} size={112} gradient={FIRE} glow="rgba(232,20,27,0.45)" />
+        <FlipText at={bottomAt} text={bottom} size={112} gradient={FIRE} glow="rgba(232,20,27,0.45)" />
       </Stack>
     </AbsoluteFill>
   );
@@ -361,9 +362,9 @@ const PainCard: React.FC<{
 
 export const PainList: React.FC = () => (
   <>
-    <PainCard at={s(T.pain1)} end={s(T.pain2)} index="01" top="ҲАРФҲОРО" bottom="НАМЕДОНАД" art={<LetterTiles at={s(T.pain1)} />} />
-    <PainCard at={s(T.pain2)} end={s(T.pain3)} index="02" top="РАҚАМҲОРО" bottom="ГУМ МЕКУНАД" art={<FallingNumbers at={s(T.pain2)} />} />
-    <PainCard at={s(T.pain3)} end={s(T.peers)} index="03" top="АЗ СИНФ" bottom="МЕТАРСАД" art={<BigDoor at={s(T.pain3)} />} />
+    <PainCard at={s(T.pain1)} end={s(T.pain2)} index="01" top="ҲАРФҲОРО" bottom="НАМЕДОНАД" bottomAt={s(T.pain1b)} art={<LetterTiles at={s(T.pain1)} />} />
+    <PainCard at={s(T.pain2)} end={s(T.pain3)} index="02" top="РАҚАМҲОРО" bottom="ГУМ МЕКУНАД" bottomAt={s(T.pain2b)} art={<FallingNumbers at={s(T.pain2)} />} />
+    <PainCard at={s(T.pain3)} end={s(T.peers)} index="03" top="АЗ СИНФ" bottom="МЕТАРСАД" bottomAt={s(T.pain3b)} art={<BigDoor at={s(T.pain3)} />} />
   </>
 );
 
@@ -371,7 +372,7 @@ export const PainList: React.FC = () => (
 export const Race: React.FC = () => {
   const frame = useCurrentFrame();
   const start = s(T.peers);
-  const end = s(T.no) - 8;
+  const end = s(T.question);
   if (frame < start || frame >= end) return null;
   const t = frame - start;
   const rows = [
@@ -443,3 +444,41 @@ const Bar: React.FC<{ label: string; value: number; color: string; bold?: boolea
   </div>
 );
 
+
+/** "Оё шумо ҳамин ояндаро барои фарзандатон мехоҳед?" — a lone child under a spotlight. */
+export const Question: React.FC = () => {
+  const frame = useCurrentFrame();
+  const start = s(T.question);
+  const end = s(T.no) - 8;
+  if (frame < start || frame >= end) return null;
+  return (
+    <AbsoluteFill style={{ opacity: interpolate(frame, [start, start + 6], [0, 1], clamp) * fadeOut(frame, end, 4) }}>
+      <AbsoluteFill style={{ backgroundColor: "#05070F" }} />
+      <AbsoluteFill
+        style={{
+          background: "conic-gradient(from 166deg at 50% -6%, rgba(255,255,255,0) 0deg, rgba(220,230,255,0.22) 14deg, rgba(255,255,255,0) 28deg)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          left: 340,
+          top: 1520,
+          width: 400,
+          height: 70,
+          borderRadius: "50%",
+          background: "radial-gradient(ellipse, rgba(220,230,255,0.35), rgba(0,0,0,0) 70%)",
+        }}
+      />
+      <div style={{ position: "absolute", left: 470, top: 1250, scale: String(interpolate(frame, [start, end], [1, 1.06], clamp)) }}>
+        <Kid color="#0E1224" pack="#1C2240" height={290} walk={0} />
+      </div>
+      <Stack top={300} gap={0} style={{ scale: String(interpolate(frame, [start, end], [1, 1.05], clamp)) }}>
+        <FlipText at={start} text="ОЁ ШУМО" size={96} gradient={ICE} />
+        <FlipText at={s(T.q2)} text="ҲАМИН ОЯНДАРО" size={80} gradient={ICE} />
+        <FlipText at={s(T.q3)} text="БАРОИ ФАРЗАНДАТОН" size={66} gradient={ICE} />
+        <FlipText at={s(T.q4)} text="МЕХОҲЕД?" size={130} gradient={FIRE} glow="rgba(232,20,27,0.5)" />
+      </Stack>
+    </AbsoluteFill>
+  );
+};

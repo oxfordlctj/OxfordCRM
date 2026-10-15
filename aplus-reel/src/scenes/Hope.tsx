@@ -147,7 +147,7 @@ export const Reveal: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const start = s(T.center);
-  const end = s(T.reading) - 1;
+  const end = s(T.english) - 7;
   if (frame < start || frame >= end) return null;
   const logoAt = s(T.aplus);
   const up = interpolate(frame, [logoAt - 8, logoAt + 8], [0, 1], { ...clamp, easing: easeOut });
@@ -158,7 +158,7 @@ export const Reveal: React.FC = () => {
       <Stack top={interpolate(up, [0, 1], [720, 230])} gap={0}>
         <div style={{ scale: String(interpolate(up, [0, 1], [1, 0.5])), transformOrigin: "50% 0%", display: "flex", flexDirection: "column", alignItems: "center" }}>
           <FlipText at={start} text="МАРКАЗИ" size={140} color={C.navy} glow="rgba(255,255,255,0.8)" />
-          <FlipText at={s(T.center) + 14} text="ТАЪЛИМИИ" size={140} color={C.navy} glow="rgba(255,255,255,0.8)" />
+          <FlipText at={s(T.learning)} text="ТАЪЛИМИИ" size={140} color={C.navy} glow="rgba(255,255,255,0.8)" />
         </div>
       </Stack>
       {frame >= logoAt - 1 ? (
@@ -280,20 +280,20 @@ const Icon: React.FC<{ kind: string; color: string }> = ({ kind, color }) => {
 };
 
 const SUBJECTS: { label: string; icon: string; color: string; at: number }[] = [
+  { label: "Англисӣ", icon: "ABC", color: C.blue, at: T.english },
+  { label: "Русӣ", icon: "АБВ", color: C.red, at: T.russian },
+  { label: "Математика", icon: "1+2", color: C.orange, at: T.math },
+  { label: "Олами атроф", icon: "globe", color: "#2BB673", at: T.world },
   { label: "Хондан", icon: "book", color: C.red, at: T.reading },
   { label: "Навиштан", icon: "pen", color: C.orange, at: T.writing },
-  { label: "Англисӣ", icon: "ABC", color: C.blue, at: T.writing + 0.33 },
-  { label: "Русӣ", icon: "АБВ", color: C.red, at: T.writing + 0.66 },
-  { label: "Математика", icon: "1+2", color: C.blue, at: T.math },
-  { label: "Мантиқ", icon: "puzzle", color: C.orange, at: T.logic },
-  { label: "Олами атроф", icon: "globe", color: "#2BB673", at: T.logic + 0.4 },
+  { label: "Мантиқ", icon: "puzzle", color: C.blue, at: T.logic },
 ];
 
 /** Seven subject tiles pop in on the beat; "Боварӣ ба худ" crowns them. */
 export const Subjects: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const start = s(T.reading);
+  const start = s(T.english) - 6;
   const end = s(T.yourChild) - 1;
   if (frame < start || frame >= end) return null;
   const crown = s(T.confidence);
@@ -598,11 +598,11 @@ export const EndCard: React.FC = () => {
       </AbsoluteFill>
       <Confetti at={start + 2} x={540} y={520} count={110} seed="end" />
       <Stack top={930} gap={8}>
-        <FlipText at={start + 18} text="АВВАЛИН ҚАДАМ" size={70} color={C.navy} />
-        <FlipText at={start + 26} text="БА СӮИ МУВАФФАҚИЯТ" size={70} color={C.orange} />
+        <FlipText at={s(T.tag1)} text="АВВАЛИН ҚАДАМ" size={70} color={C.navy} />
+        <FlipText at={s(T.tag2)} text="БА СӮИ МУВАФФАҚИЯТ" size={70} color={C.orange} />
       </Stack>
       <AbsoluteFill style={{ alignItems: "center", top: 1130 }}>
-        <PillLabel at={start + 40} color={C.blue} size={50}>
+        <PillLabel at={s(T.tag2) + 30} color={C.blue} size={50}>
           КУРСИ ТАЙЁРӢ БА МАКТАБ
         </PillLabel>
       </AbsoluteFill>
@@ -620,8 +620,8 @@ export const EndCard: React.FC = () => {
                 border: `3px solid ${BRAND[i % 4]}`,
                 borderRadius: 40,
                 padding: "10px 24px",
-                opacity: interpolate(t, [50 + i * 3, 56 + i * 3], [0, 1], clamp),
-                translate: `0px ${interpolate(t, [50 + i * 3, 60 + i * 3], [30, 0], { ...clamp, easing: easeOut })}px`,
+                opacity: interpolate(t, [110 + i * 3, 116 + i * 3], [0, 1], clamp),
+                translate: `0px ${interpolate(t, [110 + i * 3, 120 + i * 3], [30, 0], { ...clamp, easing: easeOut })}px`,
               }}
             >
               {c}
@@ -636,7 +636,7 @@ export const EndCard: React.FC = () => {
             fontWeight: 900,
             fontSize: 52,
             color: C.red,
-            opacity: interpolate(t, [80, 90], [0, 1], clamp),
+            opacity: interpolate(t, [140, 150], [0, 1], clamp),
             translate: `0px ${Math.sin(t / 6) * 6}px`,
           }}
         >

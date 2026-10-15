@@ -2,7 +2,7 @@ import React from "react";
 import { Audio } from "@remotion/media";
 import { AbsoluteFill, interpolate, staticFile, useCurrentFrame } from "remotion";
 import { Flash, Grain, Vignette, shakeAt } from "./fx";
-import { ColdOpen, Morning, NightStage, PainList, Race } from "./scenes/Pain";
+import { ColdOpen, Morning, NightStage, PainList, Question, Race } from "./scenes/Pain";
 import { DayStage, EndCard, Reveal, Seats, Shatter, SmileRun, Subjects } from "./scenes/Hope";
 import { T, VO_OFFSET, clamp, s } from "./theme";
 
@@ -23,6 +23,7 @@ export const Reel: React.FC = () => {
             <NightStage tint={frame >= s(T.peers) ? "200,60,80" : "60,110,200"} />
             <PainList />
             <Race />
+            <Question />
           </>
         ) : null}
         {day ? (
@@ -57,10 +58,10 @@ export const Reel: React.FC = () => {
 
       <Vignette strength={day ? 0.22 : 0.7} />
       <Grain opacity={day ? 0.1 : 0.28} />
-      <AbsoluteFill style={{ backgroundColor: "#000", opacity: interpolate(frame, [s(46), s(47)], [0, 1], clamp) }} />
+      <AbsoluteFill style={{ backgroundColor: "#000", opacity: interpolate(frame, [s(54.6), s(55.5)], [0, 1], clamp) }} />
 
       <Audio src={staticFile("music_duck.wav")} volume={0.9} />
-      <Audio src={staticFile("vo.mp3")} from={s(VO_OFFSET)} volume={1} />
+      <Audio src={staticFile("vo2.mp3")} from={s(VO_OFFSET)} volume={1} />
     </AbsoluteFill>
   );
 };
