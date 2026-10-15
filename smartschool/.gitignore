@@ -1,0 +1,6 @@
+node_modules/
+out/
+data/*.geojson
+data/*.npy
+data/tiles/
+data/vo/*.raw
