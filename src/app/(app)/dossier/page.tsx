@@ -2,6 +2,7 @@ import { asc, desc } from "drizzle-orm";
 import { db, dossierSections, memoryFacts } from "@/db";
 import { DeleteFact } from "@/components/DeleteFact";
 import { DossierEditor } from "@/components/DossierEditor";
+import { ImportPanel } from "@/components/ImportPanel";
 import { PageHeader } from "@/components/PageHeader";
 import { addMemoryFact } from "@/lib/actions";
 import { formatDate } from "@/lib/dates";
@@ -22,8 +23,9 @@ export default async function DossierPage() {
       />
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-4">
+          <ImportPanel sections={sections.map((s) => ({ key: s.key, title: s.title, content: s.content }))} />
           {sections.map((s) => (
-            <DossierEditor key={s.key} sectionKey={s.key} title={s.title} hint={s.hint} content={s.content} />
+            <DossierEditor key={`${s.key}-${s.updatedAt.getTime()}`} sectionKey={s.key} title={s.title} hint={s.hint} content={s.content} />
           ))}
         </div>
         <aside className="card h-fit p-5 lg:sticky lg:top-8">

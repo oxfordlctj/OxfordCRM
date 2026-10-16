@@ -47,6 +47,21 @@ export async function saveFacts(facts: { content: string; category: string }[], 
   revalidatePath("/dossier");
 }
 
+export async function applyImport(sections: { key: string; content: string }[], facts: string[]) {
+  for (const s of sections) {
+    await db
+      .update(dossierSections)
+      .set({ content: s.content.trim(), updatedAt: new Date() })
+      .where(eq(dossierSections.key, s.key));
+  }
+  const clean = facts.map((f) => f.trim()).filter(Boolean);
+  if (clean.length) {
+    await db.insert(memoryFacts).values(clean.map((content) => ({ content, category: "other", source: "chatgpt-import" })));
+  }
+  revalidatePath("/dossier");
+  revalidatePath("/");
+}
+
 // ── Заседания ───────────────────────────────────────────────────
 
 export async function createMeeting(fd: FormData) {
