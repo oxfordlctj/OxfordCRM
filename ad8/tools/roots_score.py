@@ -99,7 +99,7 @@ while x < DUR - 1.2:
 # ── hits and transitions
 place(fx, impact(1.0), DROP); place(fx, braam(1.2, 38, 2.8), DROP); place(fx, crash(1.0), DROP)
 for p in R["pairs"]:
-    place(fx, whoosh(), p["at"] - 0.3)
+    place(fx, whoosh(0.28, 0.24), p["at"] - 0.2)
     place(fx, shimmer(), p["enAt"])
 place(fx, riser(1.4, 0.5), RUN - 1.4); place(fx, crash(0.8), RUN)
 
