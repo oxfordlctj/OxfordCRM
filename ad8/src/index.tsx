@@ -5,11 +5,13 @@ import {T} from './lib';
 import {TRAILER_FRAMES, Trailer} from './Trailer';
 import {QUIZ_FRAMES, Quiz} from './quiz/Quiz';
 import {EVENT_FRAMES, EventReel} from './event/Event';
+import {ROOTS_FRAMES, Roots} from './roots/Roots';
 
 const Root: React.FC = () => (
   <>
-    {/* Instagram Reels cut: vertical trailer with Tajik VO */}
- {/* guest lecture promo: Shoira Pulatova at branch #8 */}
+    {/* viral reel: Tajik words with 6000-year-old English roots */}
+    <Composition id="OxfordRoots" component={Roots} durationInFrames={ROOTS_FRAMES} fps={30} width={1080} height={1920} />
+    {/* guest lecture promo: Shoira Pulatova at branch #8 */}
     <Composition id="OxfordEvent" component={EventReel} durationInFrames={EVENT_FRAMES} fps={30} width={1080} height={1920} />
     {/* viral quiz-challenge reel */}
     <Composition id="OxfordQuiz" component={Quiz} durationInFrames={QUIZ_FRAMES} fps={30} width={1080} height={1920} />
