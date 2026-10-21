@@ -296,21 +296,19 @@ export const Native: React.FC = () => {
   const t = f / N.fps;
   if (!ready) return <AbsoluteFill style={{background: '#efece4'}} />;
   const cam = camAt(t);
-  const c2 = camAt(t + 1 / 30);
-  const speed = Math.abs(c2.y - cam.y) * 30 * cam.z + Math.abs(c2.z - cam.z) * 30 * 900;
   const hunt = t < 0.6 ? (1 - t / 0.6) * 3.5 : 0;                     // autofocus hunting on the first frames
-  const blur = Math.min(2.4, speed / 900) + hunt;
+  const blur = hunt;   // a moving-camera blur would mean re-blurring the whole page every frame
   const hh = handheld(t);
   const strokes: Stroke[] = [];
   const content = <PageContent t={t} strokes={strokes} />;
   const sticky = <Sticky t={t} strokes={strokes} />;
   return (
     <AbsoluteFill style={{background: '#cdbfae', overflow: 'hidden'}}>
-      <AbsoluteFill style={{perspective: 2400, filter: `brightness(${1.0 + Math.sin(t * 0.6) * 0.012 - (1 - cam.z) * 0.05}) contrast(1.04) saturate(1.04)`}}>
-        <div style={{position: 'absolute', left: 0, top: 0, width: 1080, height: 1920, transform: 'rotateX(5deg)', transformOrigin: '50% 60%'}}>
-          <div style={{position: 'absolute', left: 0, top: 0, transformOrigin: '0 0', transform: `translate(${540 + hh.x}px, ${860 + hh.y}px) rotate(${hh.r}deg) scale(${cam.z}) translate(-540px, ${-cam.y}px)`, filter: blur > 0.15 ? `blur(${blur}px)` : undefined}}>
+      <AbsoluteFill>
+        <div style={{position: 'absolute', left: 0, top: 0, width: 1080, height: 1920}}>
+          <div style={{position: 'absolute', left: 0, top: 0, transformOrigin: '0 0', transform: `translate(${540 + hh.x}px, ${860 + hh.y}px) rotate(${hh.r}deg) scale(${cam.z}) translate(-540px, ${-cam.y}px)`, filter: blur > 0.4 ? `blur(${blur}px)` : undefined}}>
             {/* the table */}
-            <div style={{position: 'absolute', left: -1500, top: -1500, width: 4080, height: PAGE.h + 3000, backgroundImage: `url(${staticFile('table.jpg')})`, backgroundSize: '1080px 1920px', filter: 'blur(1.2px)'}} />
+            <div style={{position: 'absolute', left: -520, top: -900, width: 2120, height: PAGE.h + 1500, backgroundImage: `url(${staticFile('table.jpg')})`, backgroundSize: '1080px 1920px'}} />
             {/* the notebook page */}
             <div style={{position: 'absolute', left: 0, top: 0, width: PAGE.w, height: PAGE.h, boxShadow: '0 30px 60px rgba(40,30,20,.35), 0 4px 10px rgba(40,30,20,.25)'}}>
               <Img src={staticFile('paper.jpg')} style={{position: 'absolute', inset: 0, width: PAGE.w, height: PAGE.h}} />
@@ -326,6 +324,8 @@ export const Native: React.FC = () => {
           </div>
         </div>
       </AbsoluteFill>
+      {/* auto-exposure breathing */}
+      <AbsoluteFill style={{background: '#000', opacity: Math.max(0, Math.sin(t * 0.6) * 0.018 + (1 - cam.z) * 0.06)}} />
       {/* desk lamp from the top left, the phone's own shadow bottom right */}
       <AbsoluteFill style={{background: 'radial-gradient(70% 50% at 18% 8%, rgba(255,236,200,.35), transparent 70%)', mixBlendMode: 'soft-light'}} />
       <AbsoluteFill style={{background: `radial-gradient(60% 40% at ${88 + hh.x * 0.2}% ${100 + hh.y * 0.2}%, rgba(40,30,20,.22), transparent 70%)`}} />
