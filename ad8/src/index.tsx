@@ -6,9 +6,12 @@ import {TRAILER_FRAMES, Trailer} from './Trailer';
 import {QUIZ_FRAMES, Quiz} from './quiz/Quiz';
 import {EVENT_FRAMES, EventReel} from './event/Event';
 import {ROOTS_FRAMES, Roots} from './roots/Roots';
+import {NATIVE_FRAMES, Native} from './native/Native';
 
 const Root: React.FC = () => (
   <>
+    {/* the same story shot like a phone over a notebook */}
+    <Composition id="OxfordNative" component={Native} durationInFrames={NATIVE_FRAMES} fps={30} width={1080} height={1920} />
     {/* viral reel: Tajik words with 6000-year-old English roots */}
     <Composition id="OxfordRoots" component={Roots} durationInFrames={ROOTS_FRAMES} fps={30} width={1080} height={1920} />
     {/* guest lecture promo: Shoira Pulatova at branch #8 */}
